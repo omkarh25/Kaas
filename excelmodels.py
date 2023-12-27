@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
-from typing import Optional,List
+from typing import Optional, List
+from enum import Enum
 from datetime import date
 from datetime import datetime
 from pydantic import BaseModel, Field
@@ -16,7 +17,7 @@ class RecurringModel(BaseModel):
     spend_area: str
     cost: float
     frequency: str
-    type: str
+    type: RecurringType
     source: str
     status: str
     nextpayment: date
@@ -50,3 +51,8 @@ def load_sheet_into_model(sheet_name: str, file_path: str, model: BaseModel) -> 
 # Function to convert Pydantic models to DataFrame
 def models_to_dataframe(models):
     return pd.DataFrame([model.dict() for model in models])
+class RecurringType(Enum):
+    TYPE1 = 'type1'  # replace 'type1', 'type2', etc. with the actual types
+    TYPE2 = 'type2'
+    TYPE3 = 'type3'
+    # add more types as needed
