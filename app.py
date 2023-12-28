@@ -8,6 +8,8 @@ from pydantic import BaseModel
 import excelmodels as em
 from typing import List
 import utils
+import streamlit.components.v1 as components
+from pygwalker.api.streamlit import init_streamlit_comm, get_streamlit_html
 
 # Load environment variables
 load_dotenv('credentials.env')
@@ -33,33 +35,60 @@ def verify_credentials(username, password):
         return True
     return False
 
+st.set_page_config(
+    page_title="Kaas",
+    layout="wide"
+)
+
+st.title("Kaas")
+
+# Initialize pygwalker communication
+init_streamlit_comm()
+
+# When using `use_kernel_calc=True`, you should cache your pygwalker html, if you don't want your memory to explode
+@st.cache_resource
+def get_pyg_html(df: pd.DataFrame) -> str:
+    # When you need to publish your application, you need set `debug=False`,prevent other users to write your config file.
+    # If you want to use feature of saving chart config, set `debug=True`
+    html = get_streamlit_html(df, spec="./gw0.json", use_kernel_calc=True, debug=False)
+    return html
+
+@st.cache_data
+def get_df(file_path) -> pd.DataFrame:
+    return pd.read_csv("/bike_sharing_dc.csv")
+
+# Define a function to display PyGwalker-like data views
+def display_data_view(title, df):
+    st.subheader(title)
+    components.html(get_pyg_html(df), width=1300, height=1000, scrolling=True)
+
 # App main page
 def main_page():
+    # Sidebar for navigation
+    st.sidebar.title('Navigation')
+    page = st.sidebar.radio('Go to', ['Accounts Data', 'Recurring Payments Data', 'Transactions Data', 'Transactions Due'])
+
+    # Login details and last login time
     st.title('Excel Data Viewer')
     last_login_time = utils.get_second_last_login_date()
     if last_login_time:
         st.write(f"Last login time: {last_login_time}")
-    # Streamlit app
-    st.title('Excel Data Viewer')
 
-    # Dropdown to select which sheet to view
-    option = st.selectbox(
-        'Which data would you like to view?',
-        ('Accounts', 'Recurring Payments', 'Transactions')
-    )
-
-    # Displaying data based on selection
-    if option == 'Accounts':
-        st.subheader("Accounts Data")
-        st.dataframe(em.models_to_dataframe(accounts_data))
-    elif option == 'Recurring Payments':
-        st.subheader("Recurring Payments Data")
-        st.dataframe(em.models_to_dataframe(recurring_data))
-    else:
-        st.subheader("Transactions Data")
-        st.dataframe(em.models_to_dataframe(transactions_data))
+    # Displaying data based on sidebar navigation
+    if page == 'Accounts Data':
+        display_data_view("Accounts Data", em.models_to_dataframe(accounts_data))
+    elif page == 'Recurring Payments Data':
+        display_data_view("Recurring Payments Data", em.models_to_dataframe(recurring_data))
+    elif page == 'Transactions Data':
+        display_data_view("Transactions Data", em.models_to_dataframe(transactions_data))
+    elif page == 'Transactions Due':
+        st.subheader("Transactions Due")
+        # Fetch and display transactions with checkboxes (assuming a function popUp() exists for fetching transactions)
+        transactions_due = check_transactions()  # Modify this line to the actual function call that fetches due transactions
+        for transaction in transactions_due:
+            st.checkbox(transaction, value=False) 
         
-def popUp():    
+def check_transactions():    
     due_transactions = utils.get_rec_due_transactions(utils.last_login_date, utils.recurring_models)
     print(due_transactions)
     
@@ -69,38 +98,8 @@ def popUp():
         for trans in due_transactions
     }
     
-    # Present transactions to the user
-    selected_transactions = st.multiselect(
-        "Select transactions to add:",
-        options=list(transaction_options.keys())
-    )
-    
-    # Confirm button to add transactions
-    if st.button("Add Selected Transactions"):
-        # Read existing transactions
-        transactions_df = pd.read_csv("Kaas_transactions.csv")
-        
-        new_rows = []  # A list to collect new rows
-        for trans_key in selected_transactions:
-            trans = transaction_options[trans_key]
-            date_str = trans.nextpayment.strftime('%d-%b-%y')
-            new_transaction = em.TransactionModel(
-                date=date_str, 
-                description=trans.account, 
-                amount=trans.cost, 
-                area=trans.spend_area.value
-            )
-            new_rows.append(new_transaction.dict())  # Append new transaction data as a dictionary
-
-        # Convert new_rows to a DataFrame and concatenate with the existing transactions
-        new_transactions_df = pd.DataFrame(new_rows)
-        transactions_df = pd.concat([transactions_df, new_transactions_df], ignore_index=True)
-        
-         # Write updated DataFrame back to CSV
-        transactions_df.to_csv("Kaas_transactions.csv", index=False)
-       
-        st.success("Transactions added successfully!")
-        
+    return transaction_options 
+   
 def login_page():
     st.title('Login')
     username = st.text_input("Username", "")
@@ -117,9 +116,7 @@ if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
 if st.session_state['authenticated']:
-    popUp()
     main_page()
 else:
     # login_page()
-    popUp()
     main_page()
