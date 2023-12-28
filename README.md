@@ -21,4 +21,10 @@ Streamlit User dashboard
 
 UI Flow:Login — recurring transactions checkbox floating window with skip option — Update account values - Main Dashboard
 
-Function to automatically advance the next due date based on last login and generate unattended recurring transaction list. This list of transactions will be presented as floating check boxes and upto checking they should automatically added to list of transactions. This should also change the current \_value accordingly
+Function to automatically advance the next due date in  based on last login and generate unattended recurring transaction list. This list of transactions will be presented as floating check boxes and upto checking they should automatically added to list of transactions. This should also change the current \_value accordingly
+
+I need a function to automatically add recurring transactions to the list of transactions based on 'frequency' field. This should be based on the last login date.
+
+I need to present this list into a streamlit pop upbox upon login. If checked these transaction should be automatically added to Kaas_transactions.csv. Analyze app.py and suggest edit to make it work.
+
+

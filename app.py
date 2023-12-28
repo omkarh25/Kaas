@@ -7,6 +7,7 @@ import pandas as pd
 from pydantic import BaseModel
 import excelmodels as em
 from typing import List
+import utils
 
 # Load environment variables
 load_dotenv('credentials.env')
@@ -18,6 +19,10 @@ ADMIN_PASSWORD = os.getenv('admin_password')
 # Log file path
 log_file_path = 'loginlog.csv'
 
+accounts_data = em.load_sheet_into_model(em.acc_file_path, em.AccountModel)  # Update 'Sheet1' with actual name
+recurring_data = em.load_sheet_into_model(em.rec_file_path, em.RecurringModel)
+transactions_data = em.load_sheet_into_model(em.trn_file_path, em.TransactionModel)
+
 # Function to verify credentials and log login time
 def verify_credentials(username, password):
     if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
@@ -28,45 +33,12 @@ def verify_credentials(username, password):
         return True
     return False
 
-def get_last_login_time():
-    try:
-        with open(log_file_path, mode='r') as file:
-            last_login = None
-            for row in reversed(list(csv.reader(file))):
-                if row[0] == ADMIN_USERNAME:
-                    last_login = row[1]
-                    # Parse the ISO format datetime and reformat it
-                    last_login_datetime = datetime.fromisoformat(last_login)
-                    last_login_formatted = last_login_datetime.strftime('%d %b %y %I:%M %p')
-                    return last_login_formatted
-            return last_login
-    except FileNotFoundError:
-        return None  # File not found or no logins yet
-
 # App main page
 def main_page():
     st.title('Excel Data Viewer')
-    last_login_time = get_last_login_time()
+    last_login_time = utils.get_second_last_login_date()
     if last_login_time:
         st.write(f"Last login time: {last_login_time}")
-
-    # Load data from Excel (you might want to do this part once and cache the results)
-    # file_path = 'Kaas.xlsm' # Update with the actual path to your Excel file
-    # sheet_names = pd.ExcelFile(file_path).sheet_names
-
-    def load_sheet_into_model(sheet_name: str, file_path: str, model: BaseModel) -> List[BaseModel]:
-        df = pd.read_excel(file_path, sheet_name=sheet_name)
-        return [model(**row.to_dict()) for _, row in df.iterrows()]
-
-    # Loading data from each sheet
-    accounts_data = load_sheet_into_model(em.sheet_names[0], em.file_path, em.AccountModel)  # Update 'Sheet1' with actual name
-    recurring_data = load_sheet_into_model(em.sheet_names[1], em.file_path, em.RecurringModel)
-    transactions_data = load_sheet_into_model(em.sheet_names[2], em.file_path, em.TransactionModel)
-
-    # Function to convert Pydantic models to DataFrame
-    def models_to_dataframe(models):
-        return pd.DataFrame([model.dict() for model in models])
-
     # Streamlit app
     st.title('Excel Data Viewer')
 
@@ -79,13 +51,55 @@ def main_page():
     # Displaying data based on selection
     if option == 'Accounts':
         st.subheader("Accounts Data")
-        st.dataframe(models_to_dataframe(accounts_data))
+        st.dataframe(em.models_to_dataframe(accounts_data))
     elif option == 'Recurring Payments':
         st.subheader("Recurring Payments Data")
-        st.dataframe(models_to_dataframe(recurring_data))
+        st.dataframe(em.models_to_dataframe(recurring_data))
     else:
         st.subheader("Transactions Data")
-        st.dataframe(models_to_dataframe(transactions_data))
+        st.dataframe(em.models_to_dataframe(transactions_data))
+        
+def popUp():    
+    due_transactions = utils.get_rec_due_transactions(utils.last_login_date, utils.recurring_models)
+    print(due_transactions)
+    
+    # Convert due transactions to a format suitable for display and selection
+    transaction_options = {
+        f"{trans.rec_id}: {trans.account} - {trans.nextpayment}": trans 
+        for trans in due_transactions
+    }
+    
+    # Present transactions to the user
+    selected_transactions = st.multiselect(
+        "Select transactions to add:",
+        options=list(transaction_options.keys())
+    )
+    
+    # Confirm button to add transactions
+    if st.button("Add Selected Transactions"):
+        # Read existing transactions
+        transactions_df = pd.read_csv("Kaas_transactions.csv")
+        
+        new_rows = []  # A list to collect new rows
+        for trans_key in selected_transactions:
+            trans = transaction_options[trans_key]
+            date_str = trans.nextpayment.strftime('%d-%b-%y')
+            new_transaction = em.TransactionModel(
+                date=date_str, 
+                description=trans.account, 
+                amount=trans.cost, 
+                area=trans.spend_area.value
+            )
+            new_rows.append(new_transaction.dict())  # Append new transaction data as a dictionary
+
+        # Convert new_rows to a DataFrame and concatenate with the existing transactions
+        new_transactions_df = pd.DataFrame(new_rows)
+        transactions_df = pd.concat([transactions_df, new_transactions_df], ignore_index=True)
+        
+         # Write updated DataFrame back to CSV
+        transactions_df.to_csv("Kaas_transactions.csv", index=False)
+       
+        st.success("Transactions added successfully!")
         
 def login_page():
     st.title('Login')
@@ -103,6 +117,9 @@ if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
 if st.session_state['authenticated']:
+    popUp()
     main_page()
 else:
-    login_page()
+    # login_page()
+    popUp()
+    main_page()

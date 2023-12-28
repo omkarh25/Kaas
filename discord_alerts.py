@@ -3,7 +3,6 @@ from datetime import datetime
 import requests
 from dotenv import load_dotenv
 import excelmodels as em 
-import pandas as pd
 
 # Load environment variables from .env file
 load_dotenv()
@@ -18,10 +17,7 @@ def send_discord_message(message: str):
 
 # Function to check for payments due today and send messages
 def check_and_alert_payments():
-    # Load your data into the RecurringModel list
-    
-    
-    recurring_data = em.load_sheet_into_model(sheet_name, file_path, em.RecurringModel)
+    recurring_data = em.load_sheet_into_model(em.rec_file_path, em.RecurringModel)
 
     df = em.models_to_dataframe(recurring_data)
     today = datetime.now().date()
@@ -42,4 +38,6 @@ def check_and_alert_payments():
         print("No payments due today.")
 
 # Run the function
-check_and_alert_payments()
+# check_and_alert_payments()
+
+

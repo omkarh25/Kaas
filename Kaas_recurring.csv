@@ -1,0 +1,58 @@
+﻿rec_id,account,spend_area,cost,frequency,type,trans_acc,src_acc,status,nextpayment,dues_clear,fixed,autopay
+1,Income tax omkar,Tolls,0,weekly,Home,phonepe,SBI479,Active,24-Dec-23,No,No,No
+2,Income tax Vimala,Tolls,0,weekly,Home,paytm,SBI245,Active,22-Feb-25,No,No,No
+3,Property tax Ashoka Nagar,Tolls,0,weekly,Home,paytm,SBI479,Active,22-Feb-25,No,No,No
+4,Property tax DenkaniKota,Tolls,0,yearly,Home,paytm,SBI479,Active,22-Feb-25,No,No,No
+5,Property tax Lepakshi,Tolls,0,yearly,Home,paytm,SBI479,Active,22-Feb-25,No,No,No
+6,Sony Liv,Subs,999,yearly,Home,paytm,KTK795,Active,22-Feb-25,Yes,Yes,Yes
+7,Sun nxt,Subs,799,yearly,Home,paytm,KTK795,Active,23-Feb-25,Yes,Yes,Yes
+8,Amazon Prime,Subs,2200,yearly,Home,paytm,KTK795,Active,24-Jan-24,No,No,No
+9,Vimala Airtel Sim,Subs,2500,yearly,Home,paytm,KTK795,Active,8-Feb-24,No,No,No
+10,Omkar Airtel Sim,Subs,2500,yearly,Home,paytm,KTK795,Active,17-Feb-24,No,No,No
+11,Lift Annual Maintenance,Subs,5000,yearly,Home,paytm,SBI479,Active,1-Apr-24,No,No,No
+12,BBNL Internet Home,Subs,5000,quarterly,Home,paytm,KTK795,Active,28-Feb-24,No,No,No
+13,Fast tag,Tolls,0,quarterly,Home,paytm,KTK795,Active,28-Jul-23,No,No,No
+14,Car service,Servs,5000,quarterly,Home,paytm,KTK795,Active,28-Jul-23,No,No,No
+15,Sump Cleaning house,Servs,0,quarterly,Home,paytm,SBI479,Active,18-Aug-23,No,No,No
+16,Drain cleaning,Servs,0,quarterly,Home,paytm,SBI479,Active,18-Aug-23,No,No,No
+17,Microsoft office 365,Subs,6199,yearly,Office,paytm,ICI090,Active,1-May-24,No,No,No
+18,Act Internet Office,Subs,1498.31,monthly,Office,paytm,ICI090,Active,14-Jul-23,No,No,No
+19,BBNL Internet Office,Subs,3090,quarterly,Office,paytm,ICI090,Active,8-Aug-23,No,No,No
+20,Office rent,Sals,33500,monthly,Office,paytm,ICI090,Active,1-Aug-23,No,No,No
+21,Deekshith Salary,Sals,6250,weekly,Office,paytm,ICI090,Active,15-Jul-23,No,No,No
+22,Murali Salary,Sals,6250,weekly,Office,paytm,ICI090,Active,15-Jul-23,No,No,No
+23,Likitha Salary,Sals,6250,weekly,Office,paytm,ICI090,Active,15-Jul-23,No,No,No
+24,Vani Salary,Sals,6250,weekly,Office,paytm,ICI090,Active,15-Jul-23,No,No,No
+25,Raksha Salary,Sals,6250,weekly,Office,paytm,ICI090,Active,15-Jul-23,No,No,No
+26,Amol Salary,Sals,25000,weekly,Office,paytm,ICI090,Active,15-Jul-23,No,No,No
+27,House current bill,Bills,2000,monthly,Home,paytm,KTK795,Active,10-Aug-23,No,No,No
+28,Home Common current bill,Bills,800,monthly,Home,paytm,KTK795,Active,10-Aug-23,No,No,No
+29,Home Water Bill,Bills,800,monthly,Home,paytm,KTK795,Active,10-Aug-23,No,No,No
+30,Airtel DTH,Bills,3557.36,yearly,Home,paytm,KTK795,Active,30-Oct-23,No,No,No
+31,Office Current Bill,Bills,4200,monthly,Office,paytm,ICI090,Active,14-Jul-23,No,No,No
+32,Office Common Bill,Bills,600,monthly,Office,paytm,ICI090,Active,14-Jul-23,No,No,No
+33,Office Water bill,Bills,1800,monthly,Office,paytm,ICI090,Active,14-Jul-23,No,No,No
+34,Chat gpt personal,Subs,2000,monthly,Office,paytm,ICI090,Active,28-Jul-23,No,No,No
+35,Chat gpt Office,Subs,2000,monthly,Office,paytm,ICI090,Active,28-Jul-23,No,No,No
+36,OpenAI api 1,Subs,2000,monthly,Office,paytm,ICI090,Active,5-Aug-23,No,No,No
+37,OpenAI api 2,Subs,2000,monthly,Office,paytm,ICI090,Active,5-Aug-23,No,No,No
+38,Youtube Premium,Subs,189,monthly,Home,paytm,KTK795,Active,3-Aug-23,No,No,No
+39,Copilot Office,Subs,1000,monthly,Office,paytm,ICI090,Active,1-Aug-23,No,No,No
+40,Copilot Omkar,Subs,1000,monthly,Office,paytm,ICI090,Active,1-Aug-23,No,No,No
+41,Zerodha kite api,Subs,4000,monthly,Office,paytm,SBI479,Active,29-Jul-23,Yes,Yes,Yes
+42,Amol kite api,Subs,2000,monthly,Office,paytm,ICI090,Active,13-Jul-23,No,No,No
+43,Notion,Subs,7000,monthly,Office,paytm,ICI090,NotActive,1-Aug-23,No,No,No
+44,Midjourney,Subs,1000,monthly,Office,paytm,ICI090,Active,13-Jul-23,No,No,No
+45,ICICI Vimala Loan,Loan,9912,monthly,Office,paytm,ICI423,Active,5-Aug-23,No,No,No
+46,Axio Omkar Loan,Loan,13729,monthly,Office,paytm,SBI479,Active,10-Aug-23,No,No,No
+47,Paytm Loan,Loan,14977,monthly,Office,paytm,SBI479,Active,5-Aug-23,Yes,Yes,Yes
+48,Kotak Omkar Loan,Loan,17541,monthly,Office,paytm,SBI479,Active,2-Aug-23,No,No,No
+49,Indmoney Loan,Loan,10840,monthly,Office,paytm,SBI479,Active,2-Aug-23,Yes,Yes,Yes
+50,Max Term Insurance,Subs,1028,monthly,Office,paytm,SBI479,Active,21-Jul-23,No,No,No
+51,SBI Credit Omkar,Bills,0,monthly,Office,paytm,SBI479,Active,21-Jul-23,No,No,No
+52,ICICI Amazon Pay,Bills,0,monthly,Office,paytm,SBI479,Active,23-Jul-23,No,No,No
+53,ICICI Coral,Bills,0,monthly,Office,paytm,SBI479,Active,4-Aug-23,No,No,No
+54,DBS Bajaj Supercard,Bills,0,monthly,Office,paytm,ICI090,Active,8-Aug-23,No,No,No
+55,ICICI Paylater,Bills,0,monthly,Office,paytm,KTK795,Active,1-Aug-23,No,No,No
+56,Amazon Paylater,Bills,0,monthly,Office,paytm,KTK795,Active,5-Aug-23,No,No,No
+57,Car Insurance,Bills,8000,yearly,Office,paytm,SBI479,Active,5-Aug-23,No,No,No
