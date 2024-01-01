@@ -4,12 +4,10 @@ import os
 from datetime import datetime
 import csv
 import pandas as pd
-from pydantic import BaseModel
 import excelmodels as em
 from typing import List
 import utils
-import streamlit.components.v1 as components
-from pygwalker.api.streamlit import init_streamlit_comm, get_streamlit_html
+
 
 # Load environment variables
 load_dotenv('credentials.env')

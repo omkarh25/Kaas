@@ -1,0 +1,38 @@
+acc_id,account_name,acc_type,acc_no,bank_acc_type,current_value,liquid,acc_owner,credit_limit,interest_rate,last_updated
+1.0,KDCC Vimala,Acc,ICI089,Savings,0.0,No,Vimala,0.0,0.08,2024-01-01
+2.0,ICICI Omkar Online,Acc,ICI090,Savings,411458.0,Yes,Omkar,0.0,0.04,2024-01-01
+3.0,SBI Omkar Online,Acc,SBI479,Savings,428894.0,Yes,Omkar,179000.0,0.04,2024-01-01
+4.0,SBI Vimala Online,Acc,SBI245,Savings,134245.0,Yes,Vimala,179000.0,0.04,2024-01-01
+5.0,ICICI Vimala Online,Acc,SBI246,Savings,27371.0,Yes,Vimala,179000.0,0.04,2024-01-01
+6.0,ICICI Vimala OD,Acc,SBI247,FD,1796.0,Yes,Vimala,179000.0,0.04,2024-01-01
+7.0,SBI Credit Omkar,Acc,SBI248,Credit,-74335.0,Yes,Omkar,179000.0,-0.28,2024-01-01
+8.0,ICICI Amazon Pay,Acc,SBI249,Credit,-9340.0,Yes,Omkar,30000.0,-0.28,2024-01-01
+9.0,ICICI Coral,Acc,SBI250,Credit,-2875.71,Yes,Omkar,90000.0,-0.28,2024-01-01
+10.0,DBS Bajaj Supercard,Acc,SBI251,Credit,541.0,Yes,Omkar,100000.0,-0.28,2024-01-01
+11.0,ICICI Paylater,Acc,SBI252,Credit,0.0,Yes,Omkar,12000.0,-0.28,2024-01-01
+12.0,Amazon Paylater,Acc,SBI253,Credit,0.0,Yes,Omkar,35000.0,-0.28,2024-01-01
+13.0,Splitwise,Acc,SBI254,Debit,183456.0,Yes,Omkar,35000.0,0.0,2024-01-01
+14.0,ICICI Vimala Loan EMI,Acc,SBI255,EMI,-242000.0,No,Vimala,35000.0,-0.15,2024-01-01
+15.0,Axio Loan EMI,Acc,SBI256,EMI,-239539.18,No,Omkar,35000.0,-0.15,2024-01-01
+16.0,Kotak Loan EMI,Acc,SBI257,EMI,-300000.0,No,Omkar,35000.0,-0.15,2024-01-01
+17.0,Paytm Loan,Acc,SBI258,EMI,-240000.0,No,Omkar,35000.0,-0.15,2024-01-01
+18.0,INDMoney Loan,Acc,SBI259,EMI,-339000.0,No,Omkar,35000.0,-0.15,2024-01-01
+19.0,Cred Loan,Acc,SBI259,EMI,-364000.0,No,Omkar,35000.0,-0.17,2024-01-01
+20.0,Paytm Postpaid,Acc,SBI260,Credit,0.0,Yes,Omkar,35000.0,-0.15,2024-01-01
+21.0,Kotak Savings Acc,Acc,KTK795,Savings,30000.0,Yes,Omkar,35000.0,0.04,2024-01-01
+22.0,HDFC Savings Acc,Acc,KTK796,Savings,0.0,Yes,Omkar,35000.0,0.04,2024-01-01
+23.0,Paytm Wallet,Acc,KTK797,Wallet,2973.0,Yes,Omkar,35000.0,0.0,2024-01-01
+24.0,KH364,Acc,KTK798,Trading,281000.0,No,Omkar,35000.0,0.5,2024-01-01
+25.0,BY1424,Acc,KTK799,Trading,0.0,Yes,Vimala,35000.0,0.5,2024-01-01
+26.0,YY0222,Acc,KTK800,Trading,2731380.0,No,Omkar,35000.0,0.5,2024-01-01
+27.0,Chitbox,Acc,CB007,chit,16000.0,No,Omkar,70000.0,-0.16,2024-01-01
+28.0,Brijesh Loan,Acc,KTK801,Hloan,-208000.0,No,Omkar,35000.0,-0.1,2024-01-01
+29.0,Geetanti Loan,Acc,KTK802,Hloan,-1000000.0,No,Omkar,35000.0,-0.1,2024-01-01
+30.0,Manju Loan,Acc,KTK803,Hloan,-22000.0,No,Omkar,35000.0,0.0,2024-01-01
+31.0,Ratnakar Loan,Acc,KTK804,Hloan,-2500000.0,No,Omkar,35000.0,-0.08,2024-01-01
+32.0,Bangari Doddayi Loan,Acc,KTK805,Hloan,-100000.0,No,Omkar,35000.0,-0.1,2024-01-01
+33.0,Sindhu,Acc,KTK811,Hloan,-1000000.0,No,Omkar,35000.0,-0.24,2024-01-01
+34.0,Vimala Loan,Acc,KTK811,Hloan,-10000000.0,No,Omkar,35000.0,0.08,2024-01-01
+35.0,Lepakshi Site,Property,KTK808,Assets,600000.0,No,Omkar,35000.0,0.06,2024-01-01
+36.0,Office Equipments,Property,KTK809,Assets,1200000.0,No,Omkar,35000.0,0.0,2024-01-01
+37.0,Office Advance,Property,KTK810,Assets,240000.0,No,Omkar,35000.0,0.0,2024-01-01

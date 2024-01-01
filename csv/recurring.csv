@@ -1,0 +1,56 @@
+rec_id,account,spend_area,cost,frequency,type,trans_acc,src_acc,status,nextpayment,dues_clear,fixed,autopay
+1,Income tax omkar,Tolls,50000,yearly,Home,phonepe,SBI479,Active,3/31/2024,FALSE,FALSE,No
+2,Income tax Vimala,Tolls,50000,yearly,Home,paytm,SBI245,Active,3/31/2024,FALSE,FALSE,No
+3,Property tax Ashoka Nagar,Tolls,8000,yearly,Home,paytm,SBI479,Active,3/31/2024,FALSE,FALSE,No
+4,Property tax DenkaniKota,Tolls,10000,yearly,Home,paytm,SBI479,Active,3/31/2024,FALSE,FALSE,No
+5,Property tax Lepakshi,Tolls,10000,yearly,Home,paytm,SBI479,Active,3/31/2024,FALSE,FALSE,No
+6,Sony Liv,Subs,999,yearly,Home,paytm,KTK795,Active,2/22/2025,FALSE,FALSE,Yes
+7,Sun nxt,Subs,799,yearly,Home,paytm,KTK795,Active,2/23/2025,FALSE,FALSE,Yes
+8,Amazon Prime,Subs,2200,yearly,Home,paytm,KTK795,Active,1/24/2024,FALSE,FALSE,Yes
+9,Vimala Airtel Sim,Subs,2500,yearly,Home,paytm,KTK795,Active,2/8/2024,FALSE,FALSE,No
+10,Omkar Airtel Sim,Subs,2500,yearly,Home,paytm,KTK795,Active,2/17/2024,FALSE,FALSE,No
+11,Lift Annual Maintenance,Subs,5000,yearly,Home,paytm,SBI479,Active,4/1/2024,FALSE,FALSE,No
+12,BBNL Internet Home,Subs,5000,quarterly,Home,paytm,KTK795,Active,2/28/2024,FALSE,TRUE,No
+13,Fast tag,Tolls,5000,quarterly,Home,paytm,KTK795,Active,1/10/2024,FALSE,FALSE,No
+14,Car service,Servs,3000,quarterly,Home,paytm,KTK795,Active,1/10/2024,FALSE,FALSE,No
+15,Sump Cleaning house,Servs,500,quarterly,Home,paytm,SBI479,Active,4/18/2024,FALSE,FALSE,No
+16,Drain cleaning,Servs,500,quarterly,Home,paytm,SBI479,Active,4/18/2024,FALSE,FALSE,No
+17,Microsoft office 365,Subs,6199,yearly,Office,paytm,ICI090,Active,5/1/2024,FALSE,FALSE,No
+18,Act Internet Office,Subs,7760,6months,Office,paytm,ICI090,Active,3/18/2024,FALSE,FALSE,No
+19,BBNL Internet Office,Subs,7000,6months,Office,paytm,ICI090,Active,2/8/2024,FALSE,FALSE,No
+20,Office rent,Sals,33500,monthly,Office,paytm,ICI090,Active,1/6/2024,FALSE,FALSE,No
+21,Arjun Salary,Sals,5000,weekly,Office,paytm,ICI090,Active,1/6/2024,FALSE,FALSE,No
+22,Murali Salary,Sals,5000,weekly,Office,paytm,ICI090,Active,1/6/2024,FALSE,FALSE,No
+23,Likitha Salary,Sals,5000,weekly,Office,paytm,ICI090,Active,1/6/2024,FALSE,FALSE,No
+24,Vani Salary,Sals,5000,weekly,Office,paytm,ICI090,Active,1/6/2024,FALSE,FALSE,No
+25,Raksha Salary,Sals,5000,weekly,Office,paytm,ICI090,Active,1/6/2024,FALSE,FALSE,No
+26,Amol Salary,Sals,15000,weekly,Office,paytm,ICI090,Active,1/6/2024,FALSE,FALSE,No
+27,House current bill,Bills,500,monthly,Home,paytm,KTK795,Active,1/13/2024,FALSE,FALSE,No
+28,Home Common current bill,Bills,800,monthly,Home,paytm,KTK795,Active,1/13/2024,FALSE,FALSE,No
+29,Home Water Bill,Bills,800,monthly,Home,paytm,KTK795,Active,1/13/2024,FALSE,FALSE,No
+30,Airtel DTH,Bills,3557.36,yearly,Home,paytm,KTK795,Active,4/29/2024,FALSE,FALSE,No
+31,Office Current Bill,Bills,2500,monthly,Office,paytm,ICI090,Active,1/14/2024,FALSE,FALSE,No
+32,Office Common Bill,Bills,600,monthly,Office,paytm,ICI090,Active,1/14/2024,FALSE,FALSE,No
+33,Office Water bill,Bills,1800,monthly,Office,paytm,ICI090,Active,1/14/2024,FALSE,FALSE,No
+34,Chat gpt personal,Subs,2000,monthly,Office,paytm,SBI3888,Active,1/29/2024,FALSE,FALSE,Yes
+35,Chat gpt Office,Subs,2000,monthly,Office,paytm,ICI090,Active,1/8/2024,FALSE,FALSE,Yes
+36,OpenAI api 1,Subs,2000,monthly,Office,paytm,ICI090,Active,1/3/2024,FALSE,FALSE,No
+38,Youtube Premium,Subs,189,monthly,Home,paytm,KTK795,Active,1/8/2024,FALSE,FALSE,Yes
+39,Copilot Office,Subs,1000,monthly,Office,paytm,ICI090,Active,1/3/2024,FALSE,FALSE,No
+41,Zerodha kite api,Subs,4000,monthly,Office,paytm,SBI479,Active,1/3/2024,FALSE,FALSE,Yes
+43,Notion,Subs,7000,monthly,Office,paytm,ICI090,Active,1/3/2024,FALSE,FALSE,No
+45,ICICI Vimala Loan,Loan,9912,monthly,Home,paytm,ICI423,Active,1/5/2024,FALSE,FALSE,Yes
+46,Axio Omkar Loan,Loan,13729,monthly,Home,paytm,SBI479,Active,1/5/2024,FALSE,FALSE,Yes
+47,Paytm Loan,Loan,14977,monthly,Home,paytm,SBI479,Active,1/5/2024,FALSE,FALSE,Yes
+48,Kotak Omkar Loan,Loan,17541,monthly,Home,paytm,SBI479,Active,1/2/2024,FALSE,FALSE,Yes
+49,Indmoney Loan,Loan,10840,monthly,Home,paytm,SBI479,Active,1/2/2024,FALSE,FALSE,Yes
+49,Cred Loan,Loan,10540,monthly,Home,paytm,SBI479,Active,1/2/2024,FALSE,FALSE,Yes
+50,Chitbox,Loan,6700,monthly,Home,Gpay,SBI479,Active,1/5/2024,FALSE,FALSE,Yes
+50,Max Term Insurance,Subs,1028,monthly,Home,paytm,SBI479,Active,1/21/2024,FALSE,FALSE,Yes
+51,SBI Credit Omkar,Bills,20000,monthly,Home,paytm,SBI479,Active,1/21/2024,FALSE,FALSE,Yes
+52,ICICI Amazon Pay,Bills,0,monthly,Office,paytm,SBI479,Active,1/21/2024,FALSE,FALSE,Yes
+53,ICICI Coral,Bills,0,monthly,Office,paytm,SBI479,Active,1/21/2024,FALSE,FALSE,Yes
+54,DBS Bajaj Supercard,Bills,0,monthly,Home,paytm,ICI090,Active,1/5/2024,FALSE,FALSE,No
+55,ICICI Paylater,Bills,0,monthly,Home,paytm,KTK795,Active,1/21/2024,FALSE,FALSE,Yes
+56,Amazon Paylater,Bills,0,monthly,Home,paytm,KTK795,Active,1/21/2024,FALSE,FALSE,Yes
+57,Car Insurance,Bills,8000,yearly,Home,paytm,SBI479,Active,1/10/2024,FALSE,FALSE,No

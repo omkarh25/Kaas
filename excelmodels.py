@@ -5,9 +5,10 @@ from datetime import date
 from datetime import datetime
 import pandas as pd
 
-acc_file_path = 'Kaas_accounts.csv'  
-rec_file_path = 'Kaas_recurring.csv'  
-trn_file_path = 'Kaas_transactions.csv'  
+acc_file_path = 'csv/accounts.csv'  
+rec_file_path = 'csv/recurring.csv'  
+trn_file_path = 'csv/transactions.csv'
+loginlog_path = "loginlog.csv"
 
 # Load the CSV to create Enums
 kaas_recurring_df = pd.read_csv(rec_file_path)

@@ -27,4 +27,6 @@ I need a function to automatically add recurring transactions to the list of tra
 
 I need to present this list into a streamlit pop upbox upon login. If checked these transaction should be automatically added to Kaas_transactions.csv. Analyze app.py and suggest edit to make it work.
 
+Based on the recurring.csv uploaded, can you give me a python program to generate a transactions list based on the recurring transactions columns 'frequency' and 'nextpayment'. the function should take a future date as an arg and generate the transaction list as per the uploaded 'transactions.csv' columns format 
+
 
