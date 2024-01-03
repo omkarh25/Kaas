@@ -1,0 +1,14 @@
+{
+    "account_name": "arjun",
+    "broker": "aliceblue",
+    "username": "1048640",
+    "password": null,
+    "api_key": "4p9dh49AEV34bzT272sh7r9PrCcd7QNlctNmHhP6jc7PU0TnObACHhLYrEouWVibX5pT2eGlq69KsExyWEiOCdm2zbRntEHYlkkGiceaRM5crZBUfQtVmz2jiRtaapcG",
+    "api_secret": null,
+    "totp": null,
+    "percentage_risk": {
+        "MPWizard": 0.025,
+        "OvernightFutures": 50050.0,
+        "ExpiryTrader": 0.01
+    }
+}

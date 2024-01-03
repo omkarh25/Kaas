@@ -1,0 +1,14 @@
+{
+  "account_name": "vinay",
+  "broker": "aliceblue",
+  "username": "935325",
+  "password": "K@nnada333",
+  "twoFA": "1987",
+  "api_secret": "GaHGHkoJMHOmclfFtBpsxFfCmftNaUbHhVWPrZZbeYIvarcIaTVhYJVZTRCAEcyCqbOTBdENgzENdtOWgrmJDPoevURyNISZeRaE",
+  "app_code": "kKThxMchucTIuEs",
+  "api_key": "xk0s3ZYuDK4K9hAlFErG68J5enGIEbajbmNxcYAJp0opPLofEFABilIh6LDn9oDtavhJ3NKarJLaVAmcIPZcxSCMMWITxBNFgPl1nNlQIUV7hqtnAzfbeife4DnZQHC7",
+  "totp_access": "HYUHYOKAUBPEVZNNIHJLICGHSQNBQQDR",
+  "percentage_risk": {
+    "MPWizard": 0.03
+  }
+}

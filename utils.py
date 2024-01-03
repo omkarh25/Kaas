@@ -7,7 +7,7 @@ from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
 
-########################################### util funcs (temp)
+########################################### util funcs (temp)######################################
 
 # Load the data
 loginlog_path = em.loginlog_path
@@ -44,6 +44,8 @@ def get_rec_due_transactions(last_login, recurring_models):
             due = model.nextpayment <= last_login and model.nextpayment > last_login - relativedelta(months=1)
         elif model.frequency.value == 'weekly':
             due = model.nextpayment <= last_login and model.nextpayment > last_login - timedelta(days=7)
+        elif model.frequency.value == 'weekly':
+            due = model.nextpayment <= last_login and model.nextpayment > last_login - timedelta(days=7)
 
         if due:
             transactions_to_add.append(model)
@@ -59,8 +61,8 @@ def update_next_payment_dates(models):
             model.nextpayment += relativedelta(months=3)
         elif model.frequency.value == 'monthly':
             model.nextpayment += relativedelta(months=1)
-        elif model.frequency.value == 'weekly':
-            model.nextpayment += timedelta(days=7)
+        elif model.frequency.value == '6months':
+            model.nextpayment += timedelta(months=6)
 
     return models
 
@@ -81,9 +83,9 @@ def update_next_payment_dates(models):
 # # Optionally, update next payment dates
 # updated_recurring = update_next_payment_dates(due_transactions)
 
-##############################################################################
+############################## Future  Transactions generator ################################################
 # Load the recurring and transactions CSV to use as templates
-recurring_df = pd.read_csv(em.rec_file_path)
+recurring_df = pd.read_csv('csv/office_recurring.csv')
 transactions_template = pd.read_csv(em.trn_file_path).columns
 
 # Function to calculate the next payment date based on the frequency
@@ -150,7 +152,7 @@ def generate_transactions(future_date):
 # Example usage: Generate transactions up to a certain future date
 future_date = '2025-01-01'
 transactions_df = generate_transactions(future_date)
-output_path = 'csv/transactions_2025.csv'
+output_path = 'csv/office_transactions_2025.csv'
 transactions_df.to_csv(output_path, index=False)
 
 

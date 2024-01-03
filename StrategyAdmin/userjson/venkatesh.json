@@ -1,0 +1,16 @@
+{
+  "account_name": "venkatesh",
+  "broker": "aliceblue",
+  "username": "924446",
+  "password": "K@nnada333",
+  "twoFA": "1991",
+  "api_secret": "pyNZQITYOntcNgJfybPnjnzLCSWySWekJyIdWArllibJodoOUAZguBKBlmBZIhclcunfktVvuUpFsSGqoppQjPRiHVFRXMlfJPMx",
+  "app_code": "RPMGgKDNcqpdXtM",
+  "api_key": "guei1IQcY13sT7gb4ofiTNHBsQ7pJrPuhmJEZXlRRKdMm6xpRWTCGAUGB0yDir7yWQI7aIendjvybuVzeWIzS5nP9JJKMQY1Q1XYzzPS8FCsb908VzPiihY1VnYeZHeV",
+  "totp_access": "JDPHMIKEPJERXYLFKDNFBVLIEKOTIQYX",
+  "percentage_risk": {
+    "MPWizard": 0.025,
+    "OvernightFutures": 50000,
+    "ExpiryTrader": 0.01
+  }
+}

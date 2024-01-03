@@ -40,26 +40,6 @@ st.set_page_config(
 
 st.title("Kaas")
 
-# Initialize pygwalker communication
-init_streamlit_comm()
-
-# When using `use_kernel_calc=True`, you should cache your pygwalker html, if you don't want your memory to explode
-@st.cache_resource
-def get_pyg_html(df: pd.DataFrame) -> str:
-    # When you need to publish your application, you need set `debug=False`,prevent other users to write your config file.
-    # If you want to use feature of saving chart config, set `debug=True`
-    html = get_streamlit_html(df, spec="./gw0.json", use_kernel_calc=True, debug=False)
-    return html
-
-@st.cache_data
-def get_df(file_path) -> pd.DataFrame:
-    return pd.read_csv("/bike_sharing_dc.csv")
-
-# Define a function to display PyGwalker-like data views
-def display_data_view(title, df):
-    st.subheader(title)
-    components.html(get_pyg_html(df), width=1300, height=1000, scrolling=True)
-
 # App main page
 def main_page():
     # Sidebar for navigation
@@ -74,11 +54,11 @@ def main_page():
 
     # Displaying data based on sidebar navigation
     if page == 'Accounts Data':
-        display_data_view("Accounts Data", em.models_to_dataframe(accounts_data))
+        st.dataframe(em.models_to_dataframe(accounts_data))
     elif page == 'Recurring Payments Data':
-        display_data_view("Recurring Payments Data", em.models_to_dataframe(recurring_data))
+        st.dataframe(em.models_to_dataframe(recurring_data))
     elif page == 'Transactions Data':
-        display_data_view("Transactions Data", em.models_to_dataframe(transactions_data))
+        st.dataframe(em.models_to_dataframe(transactions_data))
     elif page == 'Transactions Due':
         st.subheader("Transactions Due")
         # Fetch and display transactions with checkboxes (assuming a function popUp() exists for fetching transactions)

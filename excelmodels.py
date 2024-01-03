@@ -35,14 +35,14 @@ class RecurringModel(BaseModel):
     def parse_nextpayment(cls, value):
         # Ensure the value is a string and strip any whitespace
         value = value.strip()
-
-        # Attempt to parse the date
+    @validator('nextpayment', pre=True, allow_reuse=True)
+    def parse_nextpayment(cls, value):
         try:
-            # Handles single and double-digit days
-            return datetime.strptime(value, '%d-%b-%y').date()
-        except ValueError as e:
-            # Enhanced error message
-            raise ValidationError(f"Unable to parse '{value}' as a date. Ensure it's in the format 'd-MMM-yy'. Original error: {e}")
+            # Correctly parsing the 'm/d/yyyy' format to a date object
+            month, day, year = map(int, value.split('/'))
+            return date(year, month, day)
+        except (ValueError, TypeError):
+            raise ValueError(f"Unable to convert {value} to a date object")
 
     @validator('dues_clear', 'fixed', 'autopay', pre=True)
     def str_to_bool(cls, value):
@@ -54,14 +54,18 @@ class TransactionModel(BaseModel):
     date: date
     description: str
     amount: float
-    area: str
-    
-    @validator('date', pre=True)
-    def parse_date(cls, value):       
+    trans_acc: str
+    src_account: str
+
+    # Custom validator for the 'date' field
+    @validator('date', pre=True, allow_reuse=True)
+    def parse_date(cls, value):
         try:
-            return datetime.strptime(value, '%d-%b-%y').date()
-        except ValueError as e:
-            raise ValidationError(f"Unable to parse '{value}' as a date. Ensure it's in the format 'd-MMM-yy'. Original error: {e}")
+            # Assuming the date format in the CSV is 'yyyy-mm-dd'
+            year, month, day = map(int, value.split('-'))
+            return date(year, month, day)
+        except (ValueError, TypeError):
+            raise ValueError(f"Unable to convert {value} to a date object")
 
 
 class AccountModel(BaseModel):
