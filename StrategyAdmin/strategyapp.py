@@ -155,41 +155,32 @@ def main():
     port_stats = PortfolioStats(dtd_data, account_value)
 
     # Create tabs for 'Data', 'Stats', and 'Charts'
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Data", "Stats", "Charts","Calendar","PortfolioView","Holdings","Transactions"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Strategy Data", "PortfolioView","Holdings","Transactions"])
 
     with tab1:
         if selected_strategy in strategy_sheet_names:
-            st.write(f"Data for {selected_strategy}", data)
-
-    with tab2:
-        if selected_strategy in strategy_sheet_names:
-            st.header('Trading Statistics')
-            # Assuming a function calculate_all_stats(df) that returns a DataFrame of all stats
-            formatted_stats = stats.return_statistics(data,is_signals)
-            display_formatted_statistics(formatted_stats)
-
-    with tab3:
-        if selected_strategy in strategy_sheet_names:
-            st.header('Performance Charts')
             column_for_calc = 'trade_points' if is_signals else 'net_pnl'
             equity_chart, drawdown_chart = create_charts(data,column_for_calc)  # This should return a plotly.graph_objs.Figure
             # Use the figure directly in st.plotly_chart
-            st.header('Equity Curve')
+            formatted_stats = stats.return_statistics(data,is_signals)
+            display_formatted_statistics(formatted_stats)
+            st.header('Strategy Equity Curve')
+            st.divider()
             st.plotly_chart(equity_chart, use_container_width=True)
             st.divider()
-            st.header('Drawdown Curve')
+            st.header('Strategy Drawdown Curve')
             st.plotly_chart(drawdown_chart, use_container_width=True)
-        
-    with tab4:
-        if selected_strategy in strategy_sheet_names:
-            st.header('Calendar View')
+            st.divider()
+            st.write(f"Data for {selected_strategy}", data)
+            st.divider()
+            st.header('Strategy Calendar View')
             column_for_calc = 'trade_points' if is_signals else 'net_pnl'
 
             fig1 =calendarview.generate_interactive_calendar_heatmap(data, 'exit_time', column_for_calc)
             # Display the plot in Streamlit
             st.plotly_chart(fig1)
         
-    with tab5:
+    with tab2:
         st.header('Portfolio View')
 
         equity_curve_fig = port_stats.show_equity_curve()
@@ -208,11 +199,11 @@ def main():
         st.write("Portfolio Statistics:")
         st.write(portfolio_statistics)
         
-    with tab6:
+    with tab3:
         st.header('Holdings')
         st.write(holdings_data)
         
-    with tab7:
+    with tab4:
         st.header('Transactions')
         st.write(transactions_data)
         
