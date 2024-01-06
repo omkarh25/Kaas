@@ -6,7 +6,17 @@ import stats as stats
 import os
 import glob
 import calendarview
-import masterview
+from portfoliostats_view import PortfolioStats
+
+strategy_sheet_names  = ['AmiPy', 'MPWizard', 'OvernightFutures', 'ExpiryTrader','PyStocks', 'ExtraTrades', 'ErrorTrade']
+
+#######################
+# Page configuration
+st.set_page_config(
+    page_title="TradeMan Dashboard",
+    page_icon="🏂",
+    layout="wide",
+    initial_sidebar_state="expanded")
 
 def display_formatted_statistics(formatted_stats):
     # Convert the statistics to a DataFrame for better display
@@ -39,16 +49,53 @@ def get_sheet_names(file_path):
     xl = pd.ExcelFile(file_path)
     return xl.sheet_names
 
+def create_charts(df, column_for_calc):
+    
+    # Equity Chart
+    df['Cumulative_PnL'] = df[column_for_calc].cumsum()
+    equity_chart = go.Figure()
+    equity_chart.add_trace(go.Scatter(x=df.index, y=df['Cumulative_PnL'], mode='lines', name='Equity Curve'))
+
+    # Drawdown Chart
+    roll_max = df['Cumulative_PnL'].cummax()
+    drawdown = roll_max - df['Cumulative_PnL']
+    drawdown_chart = go.Figure()
+    drawdown_chart.add_trace(go.Scatter(x=df.index, y=drawdown, mode='lines', name='Drawdown'))
+
+    return equity_chart, drawdown_chart
+
+def create_dtd_df (file_path):
+    # Read the 'DTD' sheet
+    dtd_data = pd.read_excel(file_path, sheet_name='DTD', engine='openpyxl')
+
+    # Convert 'Amount' to a numeric value (if needed)
+    # This assumes 'Amount' is stored as a string with currency symbols.
+    dtd_data['Amount'] = dtd_data['Amount'].replace('[₹,]', '', regex=True).astype(float)
+
+    # Specify the date format for your 'Date' column if known, or leave as None for automatic parsing
+    date_format = None  # Update this with your date format, e.g., '%Y-%m-%d' or leave as None
+
+    # Aggregate 'Amount' by 'Date' to calculate 'NetPnL'
+    aggregated_data = dtd_data.groupby('Date').agg(NetPnL=('Amount', 'sum')).reset_index()
+    aggregated_data['Date'] = pd.to_datetime(aggregated_data['Date'], format=date_format, errors='coerce')
+    aggregated_data['Day'] = aggregated_data['Date'].dt.day_name()
+
+    # print(aggregated_data)
+    return aggregated_data
+
 # Function to process the selected sheet and return data, stats, and charts
 def process_sheet(file_path, sheet_name):
     # Attempt to load the specific sheet from the excel file
     try:
         # Check if the sheet_name exists in the file
-        xl = pd.ExcelFile(file_path)
-        if sheet_name in xl.sheet_names:
+        if sheet_name in strategy_sheet_names:
             data = pd.read_excel(file_path, sheet_name=sheet_name)
             data['exit_time'] = pd.to_datetime(data['exit_time'])
             return data
+        elif sheet_name == 'DTD':
+            return create_dtd_df(file_path)
+        elif sheet_name == 'Transactions'or sheet_name == 'Holdings':
+            return pd.read_excel(file_path, sheet_name=sheet_name)
         else:
             print(f"Sheet '{sheet_name}' does not exist in the file.")
             return None  # or handle it as you see fit
@@ -77,72 +124,97 @@ def main():
 
     # Get all excel files in the folder
     excel_files = get_excel_files(folder_path)
+    
+    #Get list of Excel file names
+    excel_file_names = [os.path.basename(file) for file in excel_files]
 
     # Sidebar for file selection
-    selected_file = st.sidebar.radio("Choose a file", excel_files)
+    selected_file = st.sidebar.radio("Choose a file", excel_file_names)
 
     # Get sheet names (strategies) from the selected file
     sheet_names = get_sheet_names(os.path.join(folder_path, selected_file))
-    print("sheet_names",sheet_names)
+    
+    user_strategy_sheet_names = [sheet for sheet in sheet_names if sheet in strategy_sheet_names]
 
     # Sidebar for strategy selection
-    selected_strategy = st.sidebar.radio("Choose a strategy", sheet_names)
-    print("selected_strategy",selected_strategy)
+    selected_strategy = st.sidebar.radio("Choose a strategy", user_strategy_sheet_names)
 
     # Determine whether the selected file is 'Signals' or a user file
     is_signals = 'Signals' in selected_file
 
     # Process the selected sheet and get data, stats, and charts
     data = process_sheet(os.path.join(folder_path, selected_file), selected_strategy)
-    print("data",data)
+    
+    dtd_data = process_sheet(os.path.join(folder_path, selected_file), 'DTD')
+    
+    transactions_data = process_sheet(os.path.join(folder_path, selected_file), 'Transactions')
+    
+    holdings_data = process_sheet(os.path.join(folder_path, selected_file), 'Holdings')
+        
+    account_value = 2500000
+    port_stats = PortfolioStats(dtd_data, account_value)
 
     # Create tabs for 'Data', 'Stats', and 'Charts'
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Data", "Stats", "Charts","Calendar","MasterView"])
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Data", "Stats", "Charts","Calendar","PortfolioView","Holdings","Transactions"])
 
     with tab1:
-        st.write("Data")
-        st.write(f"Data for {selected_strategy}", data)
+        if selected_strategy in strategy_sheet_names:
+            st.write(f"Data for {selected_strategy}", data)
 
     with tab2:
-        st.header('Trading Statistics')
-        # Assuming a function calculate_all_stats(df) that returns a DataFrame of all stats
-        formatted_stats = stats.return_statistics(data,is_signals)
-        display_formatted_statistics(formatted_stats)
+        if selected_strategy in strategy_sheet_names:
+            st.header('Trading Statistics')
+            # Assuming a function calculate_all_stats(df) that returns a DataFrame of all stats
+            formatted_stats = stats.return_statistics(data,is_signals)
+            display_formatted_statistics(formatted_stats)
 
     with tab3:
-        st.header('Performance Charts')
-        column_for_calc = 'trade_points' if is_signals else 'net_pnl'
-        equity_chart, drawdown_chart = masterview.create_charts(data,column_for_calc)  # This should return a plotly.graph_objs.Figure
-        # Use the figure directly in st.plotly_chart
-        st.header('Equity Curve')
-        st.plotly_chart(equity_chart, use_container_width=True)
-        st.divider()
-        st.header('Drawdown Curve')
-        st.plotly_chart(drawdown_chart, use_container_width=True)
+        if selected_strategy in strategy_sheet_names:
+            st.header('Performance Charts')
+            column_for_calc = 'trade_points' if is_signals else 'net_pnl'
+            equity_chart, drawdown_chart = create_charts(data,column_for_calc)  # This should return a plotly.graph_objs.Figure
+            # Use the figure directly in st.plotly_chart
+            st.header('Equity Curve')
+            st.plotly_chart(equity_chart, use_container_width=True)
+            st.divider()
+            st.header('Drawdown Curve')
+            st.plotly_chart(drawdown_chart, use_container_width=True)
         
     with tab4:
-        st.header('Calendar View')
-        column_for_calc = 'trade_points' if is_signals else 'net_pnl'
+        if selected_strategy in strategy_sheet_names:
+            st.header('Calendar View')
+            column_for_calc = 'trade_points' if is_signals else 'net_pnl'
 
-        fig1 =calendarview.generate_interactive_calendar_heatmap(data, 'exit_time', column_for_calc)
-        # Display the plot in Streamlit
-        st.plotly_chart(fig1)
+            fig1 =calendarview.generate_interactive_calendar_heatmap(data, 'exit_time', column_for_calc)
+            # Display the plot in Streamlit
+            st.plotly_chart(fig1)
         
-    with tab4:
-        st.header('Master View')
-        # column_for_calc = 'net_pnl_for_date'
-        # file_path = os.path.join(folder_path, selected_file)
-        # sheet_names = ['AmiPy','MPWizard','ExpiryTrader','OvernightFutures','ExtraTrades','ErrorTrade']
-        # cum_df = masterview.cumulate_pnl_from_sheets(file_path, sheet_names)
-        # print("cum_df",cum_df)
-        # equity_chart_1 = masterview.plot_equity_curve(cum_df)  # This should return a plotly.graph_objs.Figure
-        # drawdown_chart_1 = masterview.plot_drawdown(cum_df)  # This should return a plotly.graph_objs.Figure
-        # # # Use the figure directly in st.plotly_chart
-        # st.header('Equity Curve')
-        # st.plotly_chart(equity_chart_1, use_container_width=True)
-        # st.divider()
-        # st.header('Drawdown Curve')
-        # st.plotly_chart(drawdown_chart_1, use_container_width=True)
+    with tab5:
+        st.header('Portfolio View')
+
+        equity_curve_fig = port_stats.show_equity_curve()
+        st.pyplot(equity_curve_fig)
+
+        monthly_returns_table, weekly_returns_table = port_stats.monthly_returns()
+        st.write("Monthly Returns:", monthly_returns_table)
+        st.write("Weekly Returns:", weekly_returns_table)
+
+        max_impact_df = port_stats.max_impact_day()
+
+        st.write("Max Impact Day:")
+        st.table(max_impact_df)
+
+        portfolio_statistics = port_stats.portfolio_stats()
+        st.write("Portfolio Statistics:")
+        st.write(portfolio_statistics)
+        
+    with tab6:
+        st.header('Holdings')
+        st.write(holdings_data)
+        
+    with tab7:
+        st.header('Transactions')
+        st.write(transactions_data)
         
 
 # Run the app
