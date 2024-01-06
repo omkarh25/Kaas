@@ -102,7 +102,7 @@ def cumulate_pnl_from_sheets(file_path, sheet_names):
 
     return cumulative_pnl_df
 
-omkar_excel_path = r'C:\Users\user\Desktop\Kaas\StrategyAdmin\userexcel\omkarhegde_new.xlsx'
+omkar_excel_path = r'C:\Users\user\Desktop\Kaas\StrategyAdmin\userexcel\omkar.xlsx'
 sheet_names = ['AmiPy','MPWizard','ExpiryTrader','OvernightFutures','ExtraTrades','ErrorTrade']
 
 # Example usage: Cumulate pnl from all sheets
