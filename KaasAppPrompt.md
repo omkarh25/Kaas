@@ -325,6 +325,7 @@ General:
 1. Design using SOLID principles. 
 2. Add adequate logging for easier debugging. 
 3. The app should have simple authentication using sqllite. with 2 levels of authorization: admin, view only.
+4. Config extraction to config files
 
 Deployment Config:
 
