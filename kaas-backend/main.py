@@ -22,6 +22,7 @@ class Asset(Base):
     __tablename__ = "assets"
 
     id = Column(Integer, primary_key=True, index=True)
+    sl_no = Column(Integer, nullable=True)  # Make sl_no nullable
     name = Column(String, index=True)
     amount = Column(Float)
     department = Column(String)
@@ -31,6 +32,7 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id = Column(Integer, primary_key=True, index=True)
+    tr_no = Column(Integer, nullable=True)  # Make tr_no nullable
     date = Column(DateTime, default=datetime.utcnow)
     description = Column(String)
     amount = Column(Float)
@@ -44,15 +46,17 @@ class Transaction(Base):
 
 # Pydantic models
 class AssetCreate(BaseModel):
+    sl_no: Optional[int] = None  # Make sl_no optional in the Pydantic model
     name: str
     amount: float
     department: str
-    comments: str
+    comments: Optional[str] = None
 
 class AssetResponse(AssetCreate):
     id: int
 
 class TransactionCreate(BaseModel):
+    tr_no: Optional[int] = None  # Make tr_no optional in the Pydantic model
     date: datetime
     description: str
     amount: float
@@ -64,18 +68,8 @@ class TransactionCreate(BaseModel):
     payment_mode_detail: str
     zoho_match: bool = False
 
-class TransactionResponse(BaseModel):
+class TransactionResponse(TransactionCreate):
     id: int
-    date: datetime
-    description: Optional[str] = None
-    amount: Optional[float] = None
-    payment_mode: Optional[str] = None
-    acc_id: Optional[str] = None
-    department: Optional[str] = None
-    comments: Optional[str] = None
-    category: Optional[str] = None
-    payment_mode_detail: Optional[str] = None
-    zoho_match: Optional[bool] = None
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -132,7 +126,13 @@ def read_assets(
     
     assets = query.offset(skip).limit(limit).all()
     logging.info(f"Retrieved {len(assets)} assets from the database")
-    return [AssetResponse(id=asset.id, name=asset.name, amount=asset.amount, department=asset.department, comments=asset.comments) for asset in assets]
+    return [
+        AssetResponse(
+            **{k: v for k, v in jsonable_encoder(asset).items() if k != 'sl_no'},
+            sl_no=asset.sl_no if hasattr(asset, 'sl_no') else None
+        ) 
+        for asset in assets
+    ]
 
 @app.get("/assets/{asset_id}", response_model=AssetResponse)
 def read_asset(asset_id: int, db: Session = Depends(get_db)):
@@ -201,8 +201,13 @@ def read_transactions(
     
     transactions = query.offset(skip).limit(limit).all()
     logging.info(f"Retrieved {len(transactions)} transactions from the database")
-    return [TransactionResponse(**{k: v for k, v in jsonable_encoder(transaction).items() if v is not None}) 
-            for transaction in transactions]
+    return [
+        TransactionResponse(
+            **{k: v for k, v in jsonable_encoder(transaction).items() if k != 'tr_no'},
+            tr_no=transaction.tr_no if hasattr(transaction, 'tr_no') else None
+        ) 
+        for transaction in transactions
+    ]
 
 @app.get("/transactions/{transaction_id}", response_model=TransactionResponse)
 def read_transaction(transaction_id: int, db: Session = Depends(get_db)):
@@ -245,6 +250,7 @@ def load_excel_data(db: Session):
         for row in sheet.iter_rows(min_row=2, values_only=True):  # Assuming first row is header
             try:
                 asset = Asset(
+                    sl_no=row[0],  # SlNo column
                     name=row[1],  # Asset column
                     amount=float(row[2]),  # Amount column
                     department=row[3],  # Department column
@@ -260,6 +266,7 @@ def load_excel_data(db: Session):
         for row in sheet.iter_rows(min_row=2, values_only=True):  # Assuming first row is header
             try:
                 transaction = Transaction(
+                    tr_no=row[0],  # TrNo column
                     date=row[1],  # Date column
                     description=row[2],  # Description column
                     amount=float(row[3]),  # Amount column

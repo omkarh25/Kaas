@@ -39,6 +39,7 @@ const columns: ColumnDef<Asset>[] = [
 
 interface AssetsTableProps {
   assets: Asset[];
+  showSlNo?: boolean; // Add this line
 }
 
 export function AssetsTable({ assets }: AssetsTableProps) {

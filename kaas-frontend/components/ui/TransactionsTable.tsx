@@ -49,6 +49,7 @@ const columns: ColumnDef<Transaction>[] = [
 
 interface TransactionsTableProps {
   transactions: Transaction[];
+  showTrNo?: boolean; // Add this line
 }
 
 export function TransactionsTable({ transactions }: TransactionsTableProps) {

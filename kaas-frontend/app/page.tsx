@@ -32,12 +32,12 @@ export default function Home() {
       
       <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-4">Assets</h2>
-        <AssetsTable assets={assets} />
+        <AssetsTable assets={assets} showSlNo={true} />
       </section>
 
       <section>
         <h2 className="text-2xl font-semibold mb-4">Transactions</h2>
-        <TransactionsTable transactions={transactions} />
+        <TransactionsTable transactions={transactions} showTrNo={true} />
       </section>
     </main>
   );
