@@ -1,3 +1,7 @@
+Kaas App
+Description: Here's an excel schema and summary of my company's financial transactions system
+
+############################## Excel sheet summary and schema########################
 ## Sheet: Assets
 
 ### Description
@@ -288,4 +292,50 @@ A description of the `Codes and Index` sheet.
 {'SL No': 2, 'AccIndex': 'INC - 001', 'Abbrevation': 'This is related to income from Loans given, theater rent and other service fees (Doesn’t include Loan received from bank and Hand loans)'}
 {'SL No': 3, 'AccIndex': 'CHT - 001', 'Abbrevation': 'Chit premium of 6250 for 1 Lakh'}
 ```
+######################################################
+
+Instructions:
+
+Build a web application using Next.js,typescript for the frontend and FastAPI,pydantic for the backend to manage company financial data. The app should include the following features:
+1. A dashboard to display key financial metrics.
+2. Asset management.
+3. Payroll management system for salary processing.
+4. Maintenance expense tracker.
+5. Income tracking module.
+6. EMI management with payment reminders.
+7. Loan management for hand loans with interest calculations based on params.
+8. Chit fund management system with dynamic interest calculation based on params.
+9. A comprehensive transaction history page with option to add transaction
+10. Account management for current loans and EMIs.
+11. Future expense planner with forecasting. 
+12. A reference page for financial codes and terminologies.
+13. Department summary analysis.
+14. Simple authentication using sqllite, with 2 levels of authorization: 'admin', 'viewOnly'.
+
+
+Utils:
+1. Export all the databack to excel/sqlite.
+
+
+Design Guideline:
+
+Deployment 
+
+General:
+1. Design using SOLID principles. 
+2. Add adequate logging for easier debugging. 
+3. The app should have simple authentication using sqllite. with 2 levels of authorization: admin, view only.
+
+Deployment Config:
+
+Backend:
+Techstack: Python 3.11, Pydantic, loguru
+
+
+Frontend:
+1. It should support CRUD, sort and filter operations on all data tables, data visualization, and provide notifications for upcoming financial obligations. 
+2. Use Shad-cn components for UI elements and ensure the app is mobile-responsive. 
+
+Start with building the frontend and backend for CRUD operations on data tables and then continue further.
+
 

@@ -1,32 +1,79 @@
-Finance freedom app
+# Kaas App
 
-I need a finance management python app with following features:
-Core App features
+This is a full-stack application with a Next.js frontend and a Python backend.
 
-1. Ingest ‘recurring_expenses’,’transactions’ and ‘accounts’ sheets from excel sheet and store it in mongodb.
-   2.Remember last visit and unpaid Recurring expenses should be presented as check mark box transactions and should show the expected account balance for each account after deducting the recurring expenses
-2. It should compare the expected balance with actual balance and justify difference above 5000 for each account. Justification should be logged in transactions. If less than 5k add it as miscellaneous transaction
+## Prerequisites
 
-Discord Notifications
+- Node.js (v14 or later)
+- npm (v6 or later)
+- Python (v3.7 or later)
+- pip (Python package manager)
 
-1. Every day morning at the 830 AM giving a list of days transaction. Alert if expected bank balance is below payment amount for the day
-2. Give discord button option to mark paid and log it into transaction
-3. Runway alert at 4 weeks
+## Installation
 
-Streamlit User dashboard
+### Frontend
 
-1. Main Dashboard with net account value trajectory, ETA to Zero, Last visit, Area of spends pie chart, stats box
-2. Ability to view and crud ‘recurring_expenses’,’transactions’ and ‘accounts’ pages
-3. Recurring expenses calendar grouped and colour coded
+1. Navigate to the frontend directory:
+   ```
+   cd kaas-frontend
+   ```
 
-UI Flow:Login — recurring transactions checkbox floating window with skip option — Update account values - Main Dashboard
+2. Install the dependencies:
+   ```
+   npm install
+   ```
 
-Function to automatically advance the next due date in  based on last login and generate unattended recurring transaction list. This list of transactions will be presented as floating check boxes and upto checking they should automatically added to list of transactions. This should also change the current \_value accordingly
+### Backend
 
-I need a function to automatically add recurring transactions to the list of transactions based on 'frequency' field. This should be based on the last login date.
+1. Navigate to the backend directory:
+   ```
+   cd kaas-backend
+   ```
 
-I need to present this list into a streamlit pop upbox upon login. If checked these transaction should be automatically added to Kaas_transactions.csv. Analyze app.py and suggest edit to make it work.
+2. It's recommended to create a virtual environment:
+   ```
+   python -m venv venv
+   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+   ```
 
-Based on the recurring.csv uploaded, can you give me a python program to generate a transactions list based on the recurring transactions columns 'frequency' and 'nextpayment'. the function should take a future date as an arg and generate the transaction list as per the uploaded 'transactions.csv' columns format 
+3. Install the required Python packages:
+   ```
+   pip install -r requirements.txt
+   ```
 
+## Running the Application
 
+Before you can log in, you need to create a user. You can do this by sending a POST request to the /users/ endpoint. You can use a tool like cURL or Postman to do this. Here's an example using cURL:
+
+curl -X POST http://localhost:8000/users/ -H "Content-Type: application/json" -d '{"username": "admin", "password": "a", "is_admin": true}'
+This will create an admin user with the username "admin" and password "a".
+
+### Frontend
+
+1. In the `kaas-frontend` directory, run:
+   ```
+   npm run dev
+   ```
+   This will start the development server, typically on `http://localhost:3000`.
+
+### Backend
+
+1. In the `kaas-backend` directory, run:
+   ```
+   python main.py
+   ```
+   This will start the backend server.
+
+## Additional Configuration
+
+- Make sure both frontend and backend are running simultaneously for the full functionality of the app.
+- If you need to modify any environment variables or API endpoints, check the following files:
+  - Frontend: `kaas-frontend/.env` (create if it doesn't exist)
+  - Backend: Check `kaas-backend/main.py` for any configuration settings
+
+## Troubleshooting
+
+- If you encounter any issues with dependencies, make sure you're using the correct versions of Node.js and Python.
+- Check the console output for both frontend and backend for any error messages.
+
+For more detailed information about the project structure and components, refer to the source code documentation.
