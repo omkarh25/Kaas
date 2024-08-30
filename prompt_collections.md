@@ -25,3 +25,9 @@ Frontend:
 2. Use Shad-cn components for UI elements and ensure the app is mobile-responsive. 
 
 Testing:
+
+
+
+
+Past prompts:
+I need next js to display, crud, sort and filter the given excel data screenshot

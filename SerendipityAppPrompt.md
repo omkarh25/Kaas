@@ -8,23 +8,25 @@ Techinical requirements:
 1. 3 way accounting match ([Zoho Bank feeds, Cash registry],Kaas Entry, DepartmentwiseLog via telegram)
    a. Integrate AlgoPlane (16+  only)
 2. Document storage (Government Docs, Warranty Docs, Utility Bills)
-3. Employee Management System (Login, Auto work assign and telegram msg, Birthdays, Wfh rules, Work entries,Shortcut references for respective skill sets)
-   a. Employee will login and he gets his customized day's schedule based on the work and meeting he picks up. A telegram msg is auto sent in the group
-   b. He has custom feeds based on the project he is working on
-   c. Liked feeds are compressed and stored in kb
-   d. Submit work at the mid/end of the day (Links, screenshots)
+3. Legal and compliance planning
 
-
-Dhoom Studios (Communication and Marketing wing): This the marketing wing of the company. We basically onboard clients by having a Q&A session with the client in a podcast format. The podcast transcript is basically used to generated marketing content for the client. Refer the attached Notion screenshot for a sample project organisation. Notion calendar is used manage all the marketing work
+Dhoom Studios (Communication and Marketing wing): Sharing is caring. Providing a platform to tell employees their stories. Social and activites side of the company
 
 Technical requirements:
-1. Project management system with links to Notion calendar
-2. Podcast recording system (Generate Q&A for podcast. Record using the link. Store, transcribe, format and store to notion)
-3. Workflow managements system (Chat bot to generate ideas)
+1. Social media friends and family type vibe
+2. Limitless Developer flow (Create scoring for area of the 15 steps) for trademan
+3. Showcase for designers for dhoom studios
+5. Custom social/tech feeds based on the working project
+6. Podcast recording system (Generate Q&A for podcast. Record using the link. Store, transcribe, format and store to notion). Vision and ethos for serendipity
+Reference: https://v0.dev/r/hQiCSOjfl3c
 
-TradeMan(Software Dev and Trading wing) : We build software products . We use github for repo management and github projects for project management.
-1. Limitless Developer flow (Create scoring for area of the 15 steps)
-2. Custom tech feeds based on the working project
-3. Git stats dashboard (Dashboard to track the work progress in creative using git repo details. Use screenshots/gif for frontend)
-5. Machine console (Password manager, RBAC,)
+Karma : Roles, duties, responsibilites with assisted workflows to complete their task faster
+1. Podcast recording system (Generate Q&A for podcast. Record using the link. Store, transcribe, format and store to notion) 
+2. Limitless Developer flow (Create scoring for area of the 15 steps)
+3. Custom tech/work feeds based on the working project
+4. Workflow managements system (Chat bot to generate ideas)
+5. Project management system with links to Notion/github
+6. Git stats dashboard (Dashboard to track the work progress in creative using git repo details. Use screenshots/gif for frontend)
+7. Machine console (Password manager, RBAC,)
+ 
 
