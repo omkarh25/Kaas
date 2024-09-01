@@ -326,6 +326,7 @@ General:
 2. Add adequate logging for easier debugging. 
 3. The app should have simple authentication using sqllite. with 2 levels of authorization: admin, view only.
 4. Config extraction to config files
+5. Make all file paths confereal in a Yamel file instead of, you know, hard coding. 
 
 Deployment Config:
 
