@@ -78,8 +78,8 @@ def update_excel_from_markdown(excel_file, sheet_name, markdown_file):
 # Usage
 excel_file = 'Kaas.xlsx'
 sheet_name = 'FreedomBlast(Future)'
-output_file = '/Users/omkar/Documents/Obsidian Vault/4_DayToDay/31-Aug-24.md'
-markdown_file = '/Users/omkar/Documents/Obsidian Vault/4_DayToDay/31-Aug-24.md'
+output_file = '/Users/omkar/Documents/Obsidian Vault/4_DayToDay/02-Sep-24.md'
+markdown_file = '/Users/omkar/Documents/Obsidian Vault/4_DayToDay/02-Sep-24.md'
 
 #excel_to_markdown(excel_file, sheet_name, output_file)
 update_excel_from_markdown(excel_file, sheet_name, markdown_file)
