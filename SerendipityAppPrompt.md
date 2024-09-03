@@ -30,3 +30,7 @@ Karma : Roles, duties, responsibilites with assisted workflows to complete their
 7. Machine console (Password manager, RBAC,)
  
 
+# Next steps
+
+1. Fabric Integration
+2. Kaas Onboard, Khaas improvements and Cause initiation
