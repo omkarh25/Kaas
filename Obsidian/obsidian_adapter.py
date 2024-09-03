@@ -81,6 +81,6 @@ sheet_name = 'FreedomBlast(Future)'
 output_file = '/Users/omkar/Documents/Obsidian Vault/4_DayToDay/02-Sep-24.md'
 markdown_file = '/Users/omkar/Documents/Obsidian Vault/4_DayToDay/02-Sep-24.md'
 
-#excel_to_markdown(excel_file, sheet_name, output_file)
+# excel_to_markdown(excel_file, sheet_name, output_file)
 update_excel_from_markdown(excel_file, sheet_name, markdown_file)
 # TODO write checked items to a different sheet to avoid conflicts with NIkhil
