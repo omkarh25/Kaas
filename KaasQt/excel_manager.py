@@ -36,6 +36,7 @@ class ExcelManager:
     def process_transactions(self, selected_rows):
         future_sheet = self.sheets['Freedom(Future)']
         past_sheet = self.sheets['Transactions(Past)']
+        accounts_sheet = self.sheets['Accounts(Present)']
         valid_categories = ['Salaries', 'Maintenance', 'Income', 'EMI', 'Hand Loans', 'Chit Box']
 
         for index in selected_rows:
@@ -70,10 +71,22 @@ class ExcelManager:
                 print(f"Warning: Sheet '{category_sheet_name}' not found. Creating new sheet.")
                 self.sheets[category_sheet_name] = pd.DataFrame([new_row])
 
+            # Update CurrentBalance in Accounts(Present) sheet
+            acc_id = row['AccID']
+            amount = row['Amount']
+            acc_row = accounts_sheet[accounts_sheet['AccID'] == acc_id]
+            if not acc_row.empty:
+                current_balance = acc_row['CurrentBalance'].values[0]
+                new_balance = current_balance + amount
+                accounts_sheet.loc[accounts_sheet['AccID'] == acc_id, 'CurrentBalance'] = new_balance
+            else:
+                print(f"Warning: AccID {acc_id} not found in Accounts(Present) sheet.")
+
         future_sheet = future_sheet.drop(selected_rows).reset_index(drop=True)
 
         self.sheets['Freedom(Future)'] = future_sheet
         self.sheets['Transactions(Past)'] = past_sheet
+        self.sheets['Accounts(Present)'] = accounts_sheet
 
         # Save changes to Excel file
         with pd.ExcelWriter(self.config['excel_file'], engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
