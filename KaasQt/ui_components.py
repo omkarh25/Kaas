@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
     QTableView, QComboBox, QMessageBox, QProgressDialog, QFileDialog,
     QHeaderView, QCheckBox, QDateEdit, QDoubleSpinBox, QDialog, QDialogButtonBox, QFormLayout,
-    QApplication, QStyleFactory, QTextEdit, QScrollArea, QFrame
+    QApplication, QStyleFactory, QTextEdit, QScrollArea, QFrame, QListWidget
 )
 from PyQt6.QtCore import Qt, QAbstractTableModel, QModelIndex, QTimer, QSortFilterProxyModel, QDate, pyqtSignal
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QFont, QPalette, QColor, QPixmap
@@ -10,6 +10,7 @@ from PyQt6.QtMultimedia import QSoundEffect, QMediaPlayer
 from PyQt6.QtMultimediaWidgets import QVideoWidget
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest
 import json
+from github_manager import GitHubManager
 
 def apply_styles(app):
     app.setStyle(QStyleFactory.create('Fusion'))
@@ -272,8 +273,7 @@ class ConfigTab(QWidget):
         layout.setContentsMargins(20, 20, 20, 20)
 
         # Load configuration from config.json
-        with open('KaasQt/config.json', 'r') as config_file:
-            config = json.load(config_file)
+        config = self.config_manager.get_config()
 
         form_layout = QFormLayout()
         form_layout.setSpacing(10)
@@ -286,6 +286,8 @@ class ConfigTab(QWidget):
         self.phone_number = QLineEdit(config.get("phone_number", ""))
         self.channel_id = QLineEdit(config.get("channel_id", ""))
         self.thread_id = QLineEdit(config.get("thread_id", ""))
+        self.github_token = QLineEdit(config.get("github_token", ""))
+        self.github_repo = QLineEdit(config.get("github_repo", ""))
 
         form_layout.addRow("Excel File:", self.excel_file)
         form_layout.addRow("Sheet Name:", self.sheet_name)
@@ -295,6 +297,8 @@ class ConfigTab(QWidget):
         form_layout.addRow("Phone Number:", self.phone_number)
         form_layout.addRow("Channel ID:", self.channel_id)
         form_layout.addRow("Thread ID:", self.thread_id)
+        form_layout.addRow("GitHub Token:", self.github_token)
+        form_layout.addRow("GitHub Repository:", self.github_repo)
 
         layout.addLayout(form_layout)
 
@@ -314,12 +318,12 @@ class ConfigTab(QWidget):
             "api_hash": self.api_hash.text(),
             "phone_number": self.phone_number.text(),
             "channel_id": self.channel_id.text(),
-            "thread_id": self.thread_id.text()
+            "thread_id": self.thread_id.text(),
+            "github_token": self.github_token.text(),
+            "github_repo": self.github_repo.text()
         }
 
-        with open('KaasQt/config.json', 'w') as config_file:
-            json.dump(config, config_file, indent=4)
-
+        self.config_manager.save_config(config)
         QMessageBox.information(self, "Success", "Configuration saved successfully!")
         self.play_sound("save_config.wav")
 
@@ -528,3 +532,78 @@ class TelegramTab(QWidget):
         reply.finished.connect(loop.quit)
         loop.exec()
         return reply.readAll()
+
+class GitHubTab(QWidget):
+    def __init__(self, config_manager):
+        super().__init__()
+        self.config_manager = config_manager
+        self.github_manager = None
+        self.init_ui()
+
+    def init_ui(self):
+        layout = QVBoxLayout()
+        layout.setSpacing(20)
+        layout.setContentsMargins(20, 20, 20, 20)
+
+        # Issue list
+        self.issue_list = QListWidget()
+        layout.addWidget(self.issue_list)
+
+        # Refresh button
+        refresh_button = QPushButton("Refresh Issues")
+        refresh_button.clicked.connect(self.refresh_issues)
+        layout.addWidget(refresh_button)
+
+        # New issue form
+        form_layout = QFormLayout()
+        self.issue_title = QLineEdit()
+        self.issue_body = QTextEdit()
+        form_layout.addRow("Title:", self.issue_title)
+        form_layout.addRow("Body:", self.issue_body)
+        layout.addLayout(form_layout)
+
+        # Create issue button
+        create_button = QPushButton("Create Issue")
+        create_button.clicked.connect(self.create_issue)
+        layout.addWidget(create_button)
+
+        self.setLayout(layout)
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.initialize_github_manager()
+        self.refresh_issues()
+
+    def initialize_github_manager(self):
+        config = self.config_manager.get_config()
+        token = config.get("github_token")
+        repo = config.get("github_repo")
+        if token and repo:
+            self.github_manager = GitHubManager(token, repo)
+        else:
+            QMessageBox.warning(self, "Configuration Error", "GitHub token or repository not set. Please check your configuration.")
+
+    def refresh_issues(self):
+        if not self.github_manager:
+            return
+        self.issue_list.clear()
+        issues = self.github_manager.get_issues()
+        for issue in issues:
+            self.issue_list.addItem(f"#{issue.number}: {issue.title}")
+
+    def create_issue(self):
+        if not self.github_manager:
+            return
+        title = self.issue_title.text()
+        body = self.issue_body.toPlainText()
+        if title:
+            try:
+                self.github_manager.create_issue(title, body)
+                self.issue_title.clear()
+                self.issue_body.clear()
+                self.refresh_issues()
+                QMessageBox.information(self, "Success", "Issue created successfully!")
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Failed to create issue: {str(e)}")
+        else:
+            QMessageBox.warning(self, "Invalid Input", "Please enter an issue title.")

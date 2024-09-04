@@ -7,18 +7,18 @@ class ConfigManager:
 
     def load_config(self):
         try:
-            with open(self.config_file, "r") as f:
+            with open(self.config_file, 'r') as f:
                 return json.load(f)
         except FileNotFoundError:
             return {}
 
-    def save_config(self):
-        with open(self.config_file, "w") as f:
-            json.dump(self.config, f)
-
     def get_config(self):
         return self.config
 
-    def update_config(self, key, value):
-        self.config[key] = value
-        self.save_config()
+    def save_config(self, new_config):
+        self.config.update(new_config)
+        with open(self.config_file, 'w') as f:
+            json.dump(self.config, f, indent=4)
+
+    def get(self, key, default=None):
+        return self.config.get(key, default)
