@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
     QPushButton, QStackedWidget, QComboBox
 )
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction, QKeySequence, QShortcut  # Move QShortcut here
 from config_manager import ConfigManager
 from excel_manager import ExcelManager
 from ui_components import ExcelViewerTab, ConfigTab, FunctionsTab, FreedomFutureTab
@@ -15,10 +15,13 @@ class MainWindow(QMainWindow):
         self.config_manager = ConfigManager("KaasQt/config.json")
         self.excel_manager = ExcelManager(self.config_manager.get_config())
         self.init_ui()
+        self.create_shortcuts()
+        self.showFullScreen()
 
     def init_ui(self):
         self.setWindowTitle("Kaas - Excel Viewer and Adapter")
-        self.setGeometry(100, 100, 1000, 700)
+        # Remove this line as it's no longer needed
+        # self.setGeometry(100, 100, 1000, 700)
 
         central_widget = QWidget()
         main_layout = QHBoxLayout(central_widget)
@@ -100,6 +103,50 @@ class MainWindow(QMainWindow):
         layout.addWidget(index_selector)
         layout.addWidget(ExcelViewerTab(self.config_manager.get_config(), self.excel_manager))
         return tab
+
+    def create_shortcuts(self):
+        # Sidebar navigation shortcuts
+        self.create_shortcut("Ctrl+E", self.show_excel_viewer, "Show Excel Viewer")
+        self.create_shortcut("Ctrl+F", self.show_functions, "Show Functions")
+        self.create_shortcut("Ctrl+G", self.show_config, "Show Configuration")
+
+        # Excel tab navigation shortcuts
+        self.create_shortcut("Alt+1", lambda: self.set_excel_tab(0), "Switch to Tasks")
+        self.create_shortcut("Alt+2", lambda: self.set_excel_tab(1), "Switch to Accounts(Present)")
+        self.create_shortcut("Alt+3", lambda: self.set_excel_tab(2), "Switch to Transactions(Past)")
+        self.create_shortcut("Alt+4", lambda: self.set_excel_tab(3), "Switch to Freedom(Future)")
+        self.create_shortcut("Alt+5", lambda: self.set_excel_tab(4), "Switch to Category")
+        self.create_shortcut("Alt+6", lambda: self.set_excel_tab(5), "Switch to Index")
+
+        # Additional shortcuts
+        self.create_shortcut("Ctrl+Q", self.close, "Exit Application")
+        self.create_shortcut("F11", self.toggle_fullscreen, "Toggle Fullscreen")
+
+    def create_shortcut(self, key, callback, description):
+        shortcut = QShortcut(QKeySequence(key), self)
+        shortcut.activated.connect(callback)
+        shortcut.setWhatsThis(description)
+
+    def show_excel_viewer(self):
+        self.content_stack.setCurrentIndex(0)
+
+    def show_functions(self):
+        self.content_stack.setCurrentIndex(1)
+
+    def show_config(self):
+        self.content_stack.setCurrentIndex(2)
+
+    def set_excel_tab(self, index):
+        excel_viewer = self.content_stack.widget(0)
+        excel_tabs = excel_viewer.findChild(QStackedWidget)
+        if excel_tabs:
+            excel_tabs.setCurrentIndex(index)
+
+    def toggle_fullscreen(self):
+        if self.isFullScreen():
+            self.showNormal()
+        else:
+            self.showFullScreen()
 
     def create_menu_bar(self):
         menu_bar = self.menuBar()
