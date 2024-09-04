@@ -1,13 +1,134 @@
 import sys
+import traceback
+import logging
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QPushButton, QStackedWidget, QComboBox
+    QPushButton, QStackedWidget, QComboBox, QLabel, QSpacerItem, QSizePolicy, QTextEdit
 )
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QAction, QKeySequence, QShortcut  # Move QShortcut here
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
+from PyQt6.QtGui import QAction, QKeySequence, QShortcut, QFont
 from config_manager import ConfigManager
 from excel_manager import ExcelManager
 from ui_components import ExcelViewerTab, ConfigTab, FunctionsTab, FreedomFutureTab
+from audio_adapter import AudioRecorder
+
+class RecordingThread(QThread):
+    finished = pyqtSignal()
+    error = pyqtSignal(str)
+
+    def __init__(self, audio_recorder):
+        super().__init__()
+        self.audio_recorder = audio_recorder
+
+    def run(self):
+        try:
+            self.audio_recorder.record_audio()
+            self.finished.emit()
+        except Exception as e:
+            self.error.emit(str(e))
+
+class VoiceRecordingTab(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.audio_recorder = AudioRecorder()
+        self.recording_thread = None
+        self.cleanup_timer = QTimer(self)
+        self.cleanup_timer.timeout.connect(self.cleanup_recording)
+        self.init_ui()
+
+    def init_ui(self):
+        layout = QVBoxLayout(self)
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # Title
+        title_label = QLabel("Voice Recording")
+        title_label.setFont(QFont("Arial", 18, QFont.Weight.Bold))
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title_label)
+
+        # Spacer
+        layout.addItem(QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
+
+        # Status label
+        self.status_label = QLabel("Ready to record")
+        self.status_label.setFont(QFont("Arial", 14))
+        self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.status_label)
+
+        # Record button
+        self.record_button = QPushButton("Start Recording")
+        self.record_button.setFont(QFont("Arial", 14))
+        self.record_button.setFixedSize(200, 50)
+        self.record_button.clicked.connect(self.toggle_recording)
+        layout.addWidget(self.record_button, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        # Error log
+        self.error_log = QTextEdit()
+        self.error_log.setReadOnly(True)
+        self.error_log.setMaximumHeight(100)
+        layout.addWidget(self.error_log)
+
+        # Spacer
+        layout.addItem(QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
+
+    def toggle_recording(self):
+        if not self.audio_recorder.is_recording:
+            self.start_recording()
+        else:
+            self.stop_recording()
+
+    def start_recording(self):
+        try:
+            self.audio_recorder.start_recording()
+            self.recording_thread = RecordingThread(self.audio_recorder)
+            self.recording_thread.finished.connect(self.on_recording_finished)
+            self.recording_thread.error.connect(self.on_recording_error)
+            self.recording_thread.start()
+            self.status_label.setText("Recording...")
+            self.record_button.setText("Stop Recording")
+        except Exception as e:
+            self.on_recording_error(str(e))
+
+    def stop_recording(self):
+        if self.recording_thread and self.recording_thread.isRunning():
+            self.audio_recorder.stop_recording()
+            self.cleanup_timer.start(100)  # Start cleanup timer
+        else:
+            self.on_recording_finished()
+
+    def cleanup_recording(self):
+        if self.recording_thread and self.recording_thread.isFinished():
+            self.recording_thread.wait()
+            self.recording_thread = None
+            self.cleanup_timer.stop()
+            self.on_recording_finished()
+        elif self.recording_thread and self.recording_thread.isRunning():
+            logging.warning("Recording thread is still running. Waiting...")
+        else:
+            self.cleanup_timer.stop()
+            self.on_recording_finished()
+
+    def on_recording_finished(self):
+        self.status_label.setText("Recording saved")
+        self.record_button.setText("Start Recording")
+        self.audio_recorder.is_recording = False
+        logging.info("Recording finished and saved successfully")
+
+    def on_recording_error(self, error_message):
+        self.status_label.setText("Error occurred")
+        self.record_button.setText("Start Recording")
+        self.audio_recorder.is_recording = False
+        self.error_log.append(f"Error: {error_message}")
+        self.error_log.append(f"Traceback: {traceback.format_exc()}")
+        logging.error(f"Recording error: {error_message}")
+
+    def closeEvent(self, event):
+        if self.audio_recorder.is_recording:
+            self.stop_recording()
+        if self.recording_thread and self.recording_thread.isRunning():
+            self.recording_thread.quit()
+            self.recording_thread.wait()
+        super().closeEvent(event)
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -20,8 +141,6 @@ class MainWindow(QMainWindow):
 
     def init_ui(self):
         self.setWindowTitle("Kaas - Excel Viewer and Adapter")
-        # Remove this line as it's no longer needed
-        # self.setGeometry(100, 100, 1000, 700)
 
         central_widget = QWidget()
         main_layout = QHBoxLayout(central_widget)
@@ -34,10 +153,12 @@ class MainWindow(QMainWindow):
         excel_viewer_btn = QPushButton("Excel Viewer")
         functions_btn = QPushButton("Functions")
         config_btn = QPushButton("Configuration")
+        voice_recording_btn = QPushButton("Voice Recording")
 
         sidebar_layout.addWidget(excel_viewer_btn)
         sidebar_layout.addWidget(functions_btn)
         sidebar_layout.addWidget(config_btn)
+        sidebar_layout.addWidget(voice_recording_btn)
         sidebar_layout.addStretch()
 
         # Main content area
@@ -71,11 +192,15 @@ class MainWindow(QMainWindow):
         self.content_stack.addWidget(excel_viewer)
         self.content_stack.addWidget(functions_tab)
         self.content_stack.addWidget(config_tab)
+        voice_recording_tab = VoiceRecordingTab()
+
+        self.content_stack.addWidget(voice_recording_tab)
 
         # Connect sidebar buttons
         excel_viewer_btn.clicked.connect(lambda: self.content_stack.setCurrentIndex(0))
         functions_btn.clicked.connect(lambda: self.content_stack.setCurrentIndex(1))
         config_btn.clicked.connect(lambda: self.content_stack.setCurrentIndex(2))
+        voice_recording_btn.clicked.connect(lambda: self.content_stack.setCurrentIndex(3))
 
         main_layout.addWidget(sidebar)
         main_layout.addWidget(self.content_stack, 1)
@@ -122,6 +247,9 @@ class MainWindow(QMainWindow):
         self.create_shortcut("Ctrl+Q", self.close, "Exit Application")
         self.create_shortcut("F11", self.toggle_fullscreen, "Toggle Fullscreen")
 
+        # Add shortcut for Voice Recording tab
+        self.create_shortcut("Ctrl+R", self.show_voice_recording, "Show Voice Recording")
+
     def create_shortcut(self, key, callback, description):
         shortcut = QShortcut(QKeySequence(key), self)
         shortcut.activated.connect(callback)
@@ -135,6 +263,9 @@ class MainWindow(QMainWindow):
 
     def show_config(self):
         self.content_stack.setCurrentIndex(2)
+
+    def show_voice_recording(self):
+        self.content_stack.setCurrentIndex(3)
 
     def set_excel_tab(self, index):
         excel_viewer = self.content_stack.widget(0)
@@ -157,8 +288,15 @@ class MainWindow(QMainWindow):
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
 
+def exception_hook(exctype, value, traceback):
+    print(f"Uncaught exception: {exctype}, {value}")
+    print("Traceback:")
+    traceback.print_tb(traceback)
+    QApplication.quit()
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    sys.excepthook = exception_hook
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
