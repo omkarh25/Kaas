@@ -10,6 +10,7 @@ session_name.session-journal
 *.log
 *.DS_Store
 .aider*
+*.jpg
 
 kaas.env
 *.db
