@@ -11,28 +11,32 @@ class PandasModel(QAbstractTableModel):
         super().__init__()
         self._data = data
 
-    def rowCount(self, parent=QModelIndex()):
-        return self._data.shape[0]
+    def rowCount(self, parent=None):
+        return len(self._data)
 
-    def columnCount(self, parent=QModelIndex()):
-        return self._data.shape[1]
+    def columnCount(self, parent=None):
+        return len(self._data.columns) if not self._data.empty else 0
 
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if role == Qt.ItemDataRole.DisplayRole:
-            return str(self._data.iloc[index.row(), index.column()])
+            value = self._data.iloc[index.row(), index.column()]
+            return str(value)
         return None
 
     def headerData(self, section, orientation, role):
         if role == Qt.ItemDataRole.DisplayRole:
             if orientation == Qt.Orientation.Horizontal:
-                return str(self._data.columns[section])
+                if not self._data.empty:
+                    return str(self._data.columns[section])
+                else:
+                    return f"Column {section}"
             if orientation == Qt.Orientation.Vertical:
                 return str(self._data.index[section])
         return None
 
     def sort(self, column, order):
         self.layoutAboutToBeChanged.emit()
-        self._data = self._data.sort_values(self._data.columns[column], ascending=order == Qt.SortOrder.AscendingOrder)
+        self._data = self._data.sort_values(self._data.columns[column], ascending=(order == Qt.SortOrder.AscendingOrder))
         self.layoutChanged.emit()
 
 class ExcelViewerTab(QWidget):
@@ -200,8 +204,11 @@ class FreedomFutureTab(QWidget):
                 selected_rows.append(row)
 
         if selected_rows:
-            self.excel_manager.process_transactions(selected_rows)
-            self.load_data()
-            QMessageBox.information(self, "Success", "Transactions processed successfully!")
+            try:
+                self.excel_manager.process_transactions(selected_rows)
+                self.load_data()
+                QMessageBox.information(self, "Success", "Transactions processed successfully!")
+            except ValueError as e:
+                QMessageBox.critical(self, "Error", str(e))
         else:
             QMessageBox.warning(self, "Warning", "No transactions selected for processing.")

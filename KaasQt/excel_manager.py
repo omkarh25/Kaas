@@ -36,9 +36,15 @@ class ExcelManager:
     def process_transactions(self, selected_rows):
         future_sheet = self.sheets['Freedom(Future)']
         past_sheet = self.sheets['Transactions(Past)']
+        valid_categories = ['Salaries', 'Maintenance', 'Income', 'EMI', 'Hand Loans', 'Chit Box']
 
         for index in selected_rows:
             row = future_sheet.iloc[index]
+            category = row['Category']
+
+            if category not in valid_categories:
+                raise ValueError(f"Invalid category: {category}. Must be one of {valid_categories}")
+
             new_row = {
                 'TrNo': past_sheet['TrNo'].max() + 1 if not past_sheet.empty else 1,
                 'Date': datetime.now().strftime('%Y-%m-%d'),
@@ -48,11 +54,21 @@ class ExcelManager:
                 'AccID': row['AccID'],
                 'Department': row['Department'],
                 'Comments': row['Comments'],
-                'Category': row['Category'],
+                'Category': category,
                 'DeductedReceivedThrough': row['DeductedReceivedThrough'],
                 'ExpectedPaymentDate': row['Date']
             }
             past_sheet = pd.concat([past_sheet, pd.DataFrame([new_row])], ignore_index=True)
+
+            # Add entry to the respective category sheet
+            category_sheet_name = f"{valid_categories.index(category) + 1}_{category}"
+            if category_sheet_name in self.sheets:
+                category_sheet = self.sheets[category_sheet_name]
+                category_sheet = pd.concat([category_sheet, pd.DataFrame([new_row])], ignore_index=True)
+                self.sheets[category_sheet_name] = category_sheet
+            else:
+                print(f"Warning: Sheet '{category_sheet_name}' not found. Creating new sheet.")
+                self.sheets[category_sheet_name] = pd.DataFrame([new_row])
 
         future_sheet = future_sheet.drop(selected_rows).reset_index(drop=True)
 
@@ -61,8 +77,11 @@ class ExcelManager:
 
         # Save changes to Excel file
         with pd.ExcelWriter(self.config['excel_file'], engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
-            future_sheet.to_excel(writer, sheet_name='Freedom(Future)', index=False)
-            past_sheet.to_excel(writer, sheet_name='Transactions(Past)', index=False)
+            for sheet_name, sheet_data in self.sheets.items():
+                if not sheet_data.empty:
+                    sheet_data.to_excel(writer, sheet_name=sheet_name, index=False)
+                else:
+                    print(f"Warning: Sheet '{sheet_name}' is empty and will not be saved.")
 
         print("Transactions processed successfully")
         self.refresh_all_sheets()
