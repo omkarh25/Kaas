@@ -40,32 +40,36 @@ class PandasModel(QAbstractTableModel):
         self.layoutChanged.emit()
 
 class ExcelViewerTab(QWidget):
-    def __init__(self, config, excel_manager):
+    def __init__(self, config, excel_manager, sheet_name=None):
         super().__init__()
         self.config = config
         self.excel_manager = excel_manager
+        self.sheet_name = sheet_name
         self.init_ui()
 
     def init_ui(self):
         layout = QVBoxLayout()
 
-        # File selection
-        file_layout = QHBoxLayout()
-        self.file_path = QLineEdit(self.config.get("excel_file", ""))
-        file_button = QPushButton("Browse")
-        file_button.clicked.connect(self.browse_file)
-        file_layout.addWidget(QLabel("Excel File:"))
-        file_layout.addWidget(self.file_path)
-        file_layout.addWidget(file_button)
-        layout.addLayout(file_layout)
+        if self.sheet_name is None:
+            # File selection
+            file_layout = QHBoxLayout()
+            self.file_path = QLineEdit(self.config.get("excel_file", ""))
+            file_button = QPushButton("Browse")
+            file_button.clicked.connect(self.browse_file)
+            file_layout.addWidget(QLabel("Excel File:"))
+            file_layout.addWidget(self.file_path)
+            file_layout.addWidget(file_button)
+            layout.addLayout(file_layout)
 
-        # Sheet selection
-        sheet_layout = QHBoxLayout()
-        self.sheet_combo = QComboBox()
-        self.sheet_combo.currentIndexChanged.connect(self.load_sheet)
-        sheet_layout.addWidget(QLabel("Sheet:"))
-        sheet_layout.addWidget(self.sheet_combo)
-        layout.addLayout(sheet_layout)
+            # Sheet selection
+            sheet_layout = QHBoxLayout()
+            self.sheet_combo = QComboBox()
+            self.sheet_combo.currentIndexChanged.connect(self.load_sheet)
+            sheet_layout.addWidget(QLabel("Sheet:"))
+            sheet_layout.addWidget(self.sheet_combo)
+            layout.addLayout(sheet_layout)
+        else:
+            layout.addWidget(QLabel(f"Sheet: {self.sheet_name}"))
 
         # Table view
         self.table_view = QTableView()
@@ -84,11 +88,12 @@ class ExcelViewerTab(QWidget):
             self.update_sheet_list()
 
     def update_sheet_list(self):
-        self.sheet_combo.clear()
-        self.sheet_combo.addItems(self.excel_manager.get_sheet_names())
+        if hasattr(self, 'sheet_combo'):
+            self.sheet_combo.clear()
+            self.sheet_combo.addItems(self.excel_manager.get_sheet_names())
 
     def load_sheet(self):
-        sheet_name = self.sheet_combo.currentText()
+        sheet_name = self.sheet_name or (self.sheet_combo.currentText() if hasattr(self, 'sheet_combo') else None)
         if sheet_name:
             df = self.excel_manager.get_sheet_data(sheet_name)
             if df is not None:
@@ -97,7 +102,8 @@ class ExcelViewerTab(QWidget):
 
     def showEvent(self, event):
         super().showEvent(event)
-        self.update_sheet_list()
+        if self.sheet_name is None:
+            self.update_sheet_list()
         self.load_sheet()
 
 class ConfigTab(QWidget):
@@ -136,16 +142,15 @@ class FunctionsTab(QWidget):
         layout = QVBoxLayout()
 
         # Add function buttons here
-        # For example:
-        # process_button = QPushButton("Process Data")
-        # process_button.clicked.connect(self.process_data)
-        # layout.addWidget(process_button)
+        process_button = QPushButton("Process Transactions")
+        process_button.clicked.connect(self.process_transactions)
+        layout.addWidget(process_button)
 
         self.setLayout(layout)
 
-    # Add methods for function buttons here
-    # def process_data(self):
-    #     # Implement data processing logic
+    def process_transactions(self):
+        freedom_future_tab = FreedomFutureTab(self.excel_manager)
+        freedom_future_tab.process_transactions()
 
 class FreedomFutureTab(QWidget):
     def __init__(self, excel_manager):
