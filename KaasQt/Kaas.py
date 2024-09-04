@@ -22,7 +22,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import QTimer, Qt
 from TelegramAdapter import TelegramAdapter
 
-CONFIG_FILE = "config.json"
+CONFIG_FILE = "KaasQt/config.json"
 
 
 class ConfigTab(QWidget):
