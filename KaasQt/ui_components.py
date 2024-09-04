@@ -2,11 +2,13 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
     QTableView, QComboBox, QMessageBox, QProgressDialog, QFileDialog,
     QHeaderView, QCheckBox, QDateEdit, QDoubleSpinBox, QDialog, QDialogButtonBox, QFormLayout,
-    QApplication, QStyleFactory
+    QApplication, QStyleFactory, QTextEdit, QScrollArea, QFrame
 )
-from PyQt6.QtCore import Qt, QAbstractTableModel, QModelIndex, QTimer, QSortFilterProxyModel, QDate
-from PyQt6.QtGui import QStandardItemModel, QStandardItem, QFont, QPalette, QColor
-from PyQt6.QtMultimedia import QSoundEffect
+from PyQt6.QtCore import Qt, QAbstractTableModel, QModelIndex, QTimer, QSortFilterProxyModel, QDate, pyqtSignal
+from PyQt6.QtGui import QStandardItemModel, QStandardItem, QFont, QPalette, QColor, QPixmap
+from PyQt6.QtMultimedia import QSoundEffect, QMediaPlayer
+from PyQt6.QtMultimediaWidgets import QVideoWidget
+from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest
 import json
 
 def apply_styles(app):
@@ -422,3 +424,107 @@ class FreedomFutureTab(QWidget):
                 QMessageBox.critical(self, "Error", str(e))
         else:
             QMessageBox.warning(self, "Warning", "No transactions selected for processing.")
+
+class TelegramTab(QWidget):
+    def __init__(self, telegram_adapter):
+        super().__init__()
+        self.telegram_adapter = telegram_adapter
+        self.init_ui()
+
+    def init_ui(self):
+        layout = QVBoxLayout()
+        layout.setSpacing(20)
+        layout.setContentsMargins(20, 20, 20, 20)
+
+        # Channel selection
+        self.channel_combo = QComboBox()
+        self.channel_combo.addItem("Select a channel", None)
+        self.channel_combo.currentIndexChanged.connect(self.on_channel_changed)
+        layout.addWidget(self.channel_combo)
+
+        # Chat display area
+        self.chat_display = QTextEdit()
+        self.chat_display.setReadOnly(True)
+        layout.addWidget(self.chat_display)
+
+        # Message input area
+        input_layout = QHBoxLayout()
+        self.message_input = QLineEdit()
+        self.send_button = QPushButton("Send")
+        self.send_button.clicked.connect(self.send_message)
+        input_layout.addWidget(self.message_input)
+        input_layout.addWidget(self.send_button)
+        layout.addLayout(input_layout)
+
+        self.setLayout(layout)
+
+        # Set up a timer to periodically fetch new messages
+        self.update_timer = QTimer(self)
+        self.update_timer.timeout.connect(self.fetch_new_messages)
+        self.update_timer.start(5000)  # Fetch every 5 seconds
+
+        # Populate channel list
+        self.populate_channels()
+
+    def populate_channels(self):
+        channels = self.telegram_adapter.get_dialogs()
+        for channel_id, channel_name in channels:
+            self.channel_combo.addItem(channel_name, channel_id)
+
+    def on_channel_changed(self, index):
+        channel_id = self.channel_combo.itemData(index)
+        if channel_id:
+            self.telegram_adapter.set_channel(channel_id)
+            self.fetch_new_messages()
+        else:
+            self.chat_display.clear()
+
+    def send_message(self):
+        message = self.message_input.text()
+        if message:
+            try:
+                self.telegram_adapter.send_message(message)
+                self.message_input.clear()
+                self.fetch_new_messages()
+            except ValueError as e:
+                QMessageBox.warning(self, "Error", str(e))
+
+    def fetch_new_messages(self):
+        messages = self.telegram_adapter.get_messages()
+        self.display_messages(messages)
+
+    def display_messages(self, messages):
+        self.chat_display.clear()
+        for message in messages:
+            self.chat_display.append(f"{message['sender']}: {message['text']}")
+            if message.get('image'):
+                self.display_image(message['image'])
+            if message.get('audio'):
+                self.display_audio(message['audio'])
+            if message.get('link'):
+                self.display_link(message['link'])
+            self.chat_display.append("")
+
+    def display_image(self, image_url):
+        pixmap = QPixmap()
+        pixmap.loadFromData(self.download_file(image_url))
+        self.chat_display.textCursor().insertImage(pixmap.toImage())
+
+    def display_audio(self, audio_url):
+        audio_player = QMediaPlayer()
+        audio_player.setSource(audio_url)
+        audio_widget = QVideoWidget()
+        audio_player.setVideoOutput(audio_widget)
+        self.chat_display.textCursor().insertHtml(f'<audio controls><source src="{audio_url}" type="audio/mpeg"></audio>')
+
+    def display_link(self, link):
+        self.chat_display.append(f'<a href="{link}">{link}</a>')
+
+    def download_file(self, url):
+        network_manager = QNetworkAccessManager()
+        request = QNetworkRequest(url)
+        reply = network_manager.get(request)
+        loop = QEventLoop()
+        reply.finished.connect(loop.quit)
+        loop.exec()
+        return reply.readAll()

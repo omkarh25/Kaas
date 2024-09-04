@@ -2,6 +2,9 @@ venv/
 build/
 dist/
 
+session_name.session
+session_name.session-journal
+
 *.env
 *.pyc
 *.log

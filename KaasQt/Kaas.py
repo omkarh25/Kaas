@@ -9,8 +9,9 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QAction, QKeySequence, QShortcut, QFont
 from config_manager import ConfigManager
 from excel_manager import ExcelManager
-from ui_components import ExcelViewerTab, ConfigTab, FunctionsTab, FreedomFutureTab, apply_styles
+from ui_components import ExcelViewerTab, ConfigTab, FunctionsTab, FreedomFutureTab, apply_styles, TelegramTab
 from audio_adapter import AudioRecorder
+from TelegramAdapter import TelegramAdapter
 
 class RecordingThread(QThread):
     finished = pyqtSignal()
@@ -135,6 +136,11 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.config_manager = config_manager
         self.excel_manager = excel_manager
+        self.telegram_adapter = TelegramAdapter(
+            self.config_manager.get_config()['api_id'],
+            self.config_manager.get_config()['api_hash'],
+            self.config_manager.get_config()['phone_number']
+        )
         self.init_ui()
         self.create_shortcuts()
         self.showFullScreen()
@@ -154,11 +160,13 @@ class MainWindow(QMainWindow):
         functions_btn = QPushButton("Functions")
         config_btn = QPushButton("Configuration")
         voice_recording_btn = QPushButton("Voice Recording")
+        telegram_btn = QPushButton("Telegram")
 
         sidebar_layout.addWidget(excel_viewer_btn)
         sidebar_layout.addWidget(functions_btn)
         sidebar_layout.addWidget(config_btn)
         sidebar_layout.addWidget(voice_recording_btn)
+        sidebar_layout.addWidget(telegram_btn)
         sidebar_layout.addStretch()
 
         # Main content area
@@ -193,14 +201,17 @@ class MainWindow(QMainWindow):
         self.content_stack.addWidget(functions_tab)
         self.content_stack.addWidget(config_tab)
         voice_recording_tab = VoiceRecordingTab()
+        telegram_tab = TelegramTab(self.telegram_adapter)
 
         self.content_stack.addWidget(voice_recording_tab)
+        self.content_stack.addWidget(telegram_tab)
 
         # Connect sidebar buttons
         excel_viewer_btn.clicked.connect(lambda: self.content_stack.setCurrentIndex(0))
         functions_btn.clicked.connect(lambda: self.content_stack.setCurrentIndex(1))
         config_btn.clicked.connect(lambda: self.content_stack.setCurrentIndex(2))
         voice_recording_btn.clicked.connect(lambda: self.content_stack.setCurrentIndex(3))
+        telegram_btn.clicked.connect(lambda: self.content_stack.setCurrentWidget(telegram_tab))
 
         main_layout.addWidget(sidebar)
         main_layout.addWidget(self.content_stack, 1)
@@ -250,6 +261,9 @@ class MainWindow(QMainWindow):
         # Add shortcut for Voice Recording tab
         self.create_shortcut("Ctrl+R", self.show_voice_recording, "Show Voice Recording")
 
+        # Add shortcut for Telegram tab
+        self.create_shortcut("Ctrl+T", self.show_telegram, "Show Telegram")
+
     def create_shortcut(self, key, callback, description):
         shortcut = QShortcut(QKeySequence(key), self)
         shortcut.activated.connect(callback)
@@ -266,6 +280,11 @@ class MainWindow(QMainWindow):
 
     def show_voice_recording(self):
         self.content_stack.setCurrentIndex(3)
+
+    def show_telegram(self):
+        telegram_tab = self.content_stack.findChild(TelegramTab)
+        if telegram_tab:
+            self.content_stack.setCurrentWidget(telegram_tab)
 
     def set_excel_tab(self, index):
         excel_viewer = self.content_stack.widget(0)
