@@ -93,3 +93,7 @@ Alt+6: Switch to Index tab
 Additional Controls:
 Ctrl+Q: Exit the application
 F11: Toggle fullscreen mode
+
+pyinstaller --name=Kaas --windowed --onefile --add-data "KaasQt/config.json;." --icon="KaasQt/kaas.ico" Kaas.py
+
+   pyinstaller --name=Kaas --windowed --onefile --add-data="KaasQt\config.json;." --icon="KaasQt\kaas.ico" KaasQt\Kaas.py
