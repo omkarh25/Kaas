@@ -7,6 +7,7 @@ class ExcelManager:
         self.config = config
         self.excel_file = None
         self.sheets = {}
+        self.valid_categories = ['Salaries', 'Maintenance', 'Income', 'EMI', 'Hand Loans', 'Chit Box']
         self.load_excel(config.get('excel_file', ''))
 
     def load_excel(self, file_path):
@@ -37,14 +38,13 @@ class ExcelManager:
         future_sheet = self.sheets['Freedom(Future)']
         past_sheet = self.sheets['Transactions(Past)']
         accounts_sheet = self.sheets['Accounts(Present)']
-        valid_categories = ['Salaries', 'Maintenance', 'Income', 'EMI', 'Hand Loans', 'Chit Box']
 
         for index in selected_rows:
             row = future_sheet.iloc[index]
             category = row['Category']
 
-            if category not in valid_categories:
-                raise ValueError(f"Invalid category: {category}. Must be one of {valid_categories}")
+            if category not in self.valid_categories:
+                raise ValueError(f"Invalid category: {category}. Must be one of {self.valid_categories}")
 
             new_row = {
                 'TrNo': past_sheet['TrNo'].max() + 1 if not past_sheet.empty else 1,
@@ -62,7 +62,7 @@ class ExcelManager:
             past_sheet = pd.concat([past_sheet, pd.DataFrame([new_row])], ignore_index=True)
 
             # Add entry to the respective category sheet
-            category_sheet_name = f"{valid_categories.index(category) + 1}_{category}"
+            category_sheet_name = f"{self.valid_categories.index(category) + 1}_{category}"
             if category_sheet_name in self.sheets:
                 category_sheet = self.sheets[category_sheet_name]
                 category_sheet = pd.concat([category_sheet, pd.DataFrame([new_row])], ignore_index=True)
@@ -101,3 +101,45 @@ class ExcelManager:
 
     def refresh_all_sheets(self):
         self.load_excel(self.config['excel_file'])
+
+    def add_transaction(self, new_transaction):
+        # Add to Transactions(Past) sheet
+        past_sheet = self.sheets['Transactions(Past)']
+        past_sheet = past_sheet.append(new_transaction, ignore_index=True)
+
+        # Add to respective category sheet
+        category = new_transaction['Category']
+        if category not in self.valid_categories:
+            raise ValueError(f"Invalid category: {category}. Must be one of {self.valid_categories}")
+
+        category_sheet_name = f"{self.valid_categories.index(category) + 1}_{category}"
+        if category_sheet_name in self.sheets:
+            category_sheet = self.sheets[category_sheet_name]
+            category_sheet = category_sheet.append(new_transaction, ignore_index=True)
+            self.sheets[category_sheet_name] = category_sheet
+        else:
+            print(f"Warning: Sheet '{category_sheet_name}' not found. Creating new sheet.")
+            self.sheets[category_sheet_name] = pd.DataFrame([new_transaction])
+
+        # Update CurrentBalance in Accounts(Present) sheet
+        acc_id = new_transaction['AccID']
+        amount = new_transaction['Amount']
+        accounts_sheet = self.sheets['Accounts(Present)']
+        acc_row = accounts_sheet[accounts_sheet['AccID'] == acc_id]
+        if not acc_row.empty:
+            current_balance = acc_row['CurrentBalance'].values[0]
+            new_balance = current_balance + amount
+            accounts_sheet.loc[accounts_sheet['AccID'] == acc_id, 'CurrentBalance'] = new_balance
+        else:
+            print(f"Warning: AccID {acc_id} not found in Accounts(Present) sheet.")
+
+        self.sheets['Transactions(Past)'] = past_sheet
+        self.sheets['Accounts(Present)'] = accounts_sheet
+
+        # Save changes to Excel file
+        with pd.ExcelWriter(self.config['excel_file'], engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+            for sheet_name, sheet_data in self.sheets.items():
+                sheet_data.to_excel(writer, sheet_name=sheet_name, index=False)
+
+        print("Transaction added successfully")
+        self.refresh_all_sheets()

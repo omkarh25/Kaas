@@ -1,9 +1,9 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
     QTableView, QComboBox, QMessageBox, QProgressDialog, QFileDialog,
-    QHeaderView, QCheckBox
+    QHeaderView, QCheckBox, QDateEdit, QDoubleSpinBox, QDialog, QDialogButtonBox, QFormLayout
 )
-from PyQt6.QtCore import Qt, QAbstractTableModel, QModelIndex, QTimer, QSortFilterProxyModel
+from PyQt6.QtCore import Qt, QAbstractTableModel, QModelIndex, QTimer, QSortFilterProxyModel, QDate
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 
 class PandasModel(QAbstractTableModel):
@@ -78,6 +78,12 @@ class ExcelViewerTab(QWidget):
         self.table_view.horizontalHeader().setStretchLastSection(True)
         layout.addWidget(self.table_view)
 
+        # Add Transaction button and form for Transactions(Past) sheet
+        if self.sheet_name == "Transactions(Past)":
+            add_transaction_button = QPushButton("Add Transaction")
+            add_transaction_button.clicked.connect(self.show_add_transaction_form)
+            layout.addWidget(add_transaction_button)
+
         self.setLayout(layout)
 
     def browse_file(self):
@@ -105,6 +111,80 @@ class ExcelViewerTab(QWidget):
         if self.sheet_name is None:
             self.update_sheet_list()
         self.load_sheet()
+
+    def show_add_transaction_form(self):
+        form = AddTransactionForm(self.excel_manager)
+        if form.exec() == QDialog.DialogCode.Accepted:
+            self.load_sheet()  # Refresh the table view
+
+class AddTransactionForm(QDialog):
+    def __init__(self, excel_manager):
+        super().__init__()
+        self.excel_manager = excel_manager
+        self.init_ui()
+
+    def init_ui(self):
+        self.setWindowTitle("Add Transaction")
+        layout = QVBoxLayout()
+
+        # Add form fields
+        self.date_edit = QDateEdit(QDate.currentDate())
+        self.description_edit = QLineEdit()
+        self.amount_edit = QDoubleSpinBox()
+        self.amount_edit.setRange(-1000000, 1000000)
+        self.payment_mode_edit = QComboBox()
+        self.payment_mode_edit.addItems(["Cash", "Bank Transfer", "Credit Card", "Debit Card"])
+        self.acc_id_edit = QLineEdit()
+        self.department_edit = QLineEdit()
+        self.comments_edit = QLineEdit()
+        self.category_edit = QComboBox()
+        self.category_edit.addItems(['Salaries', 'Maintenance', 'Income', 'EMI', 'Hand Loans', 'Chit Box'])
+        self.deducted_received_through_edit = QLineEdit()
+
+        form_layout = QFormLayout()
+        form_layout.addRow("Date:", self.date_edit)
+        form_layout.addRow("Description:", self.description_edit)
+        form_layout.addRow("Amount:", self.amount_edit)
+        form_layout.addRow("Payment Mode:", self.payment_mode_edit)
+        form_layout.addRow("Account ID:", self.acc_id_edit)
+        form_layout.addRow("Department:", self.department_edit)
+        form_layout.addRow("Comments:", self.comments_edit)
+        form_layout.addRow("Category:", self.category_edit)
+        form_layout.addRow("Deducted/Received Through:", self.deducted_received_through_edit)
+
+        layout.addLayout(form_layout)
+
+        # Add buttons
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        layout.addWidget(button_box)
+
+        self.setLayout(layout)
+
+    def accept(self):
+        # Gather form data
+        new_transaction = {
+            'TrNo': self.excel_manager.get_sheet_data('Transactions(Past)')['TrNo'].max() + 1,
+            'Date': self.date_edit.date().toString(Qt.DateFormat.ISODate),
+            'Description': self.description_edit.text(),
+            'Amount': self.amount_edit.value(),
+            'PaymentMode': self.payment_mode_edit.currentText(),
+            'AccID': self.acc_id_edit.text(),
+            'Department': self.department_edit.text(),
+            'Comments': self.comments_edit.text(),
+            'Category': self.category_edit.currentText(),
+            'DeductedReceivedThrough': self.deducted_received_through_edit.text(),
+            'ExpectedPaymentDate': self.date_edit.date().toString(Qt.DateFormat.ISODate)
+        }
+
+        try:
+            # Add transaction to Transactions(Past) sheet
+            self.excel_manager.add_transaction(new_transaction)
+            QMessageBox.information(self, "Success", "Transaction added successfully!")
+            super().accept()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
 
 class ConfigTab(QWidget):
     def __init__(self, config_manager):
