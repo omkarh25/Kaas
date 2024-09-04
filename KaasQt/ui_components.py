@@ -1,10 +1,71 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
     QTableView, QComboBox, QMessageBox, QProgressDialog, QFileDialog,
-    QHeaderView, QCheckBox, QDateEdit, QDoubleSpinBox, QDialog, QDialogButtonBox, QFormLayout
+    QHeaderView, QCheckBox, QDateEdit, QDoubleSpinBox, QDialog, QDialogButtonBox, QFormLayout,
+    QApplication, QStyleFactory
 )
 from PyQt6.QtCore import Qt, QAbstractTableModel, QModelIndex, QTimer, QSortFilterProxyModel, QDate
-from PyQt6.QtGui import QStandardItemModel, QStandardItem
+from PyQt6.QtGui import QStandardItemModel, QStandardItem, QFont, QPalette, QColor
+from PyQt6.QtMultimedia import QSoundEffect
+import json
+
+def apply_styles(app):
+    app.setStyle(QStyleFactory.create('Fusion'))
+    custom_font = QFont("Roboto", 10)
+    app.setFont(custom_font)
+
+    palette = QPalette()
+    palette.setColor(QPalette.ColorRole.Window, QColor(240, 240, 240))
+    palette.setColor(QPalette.ColorRole.WindowText, QColor(50, 50, 50))
+    palette.setColor(QPalette.ColorRole.Base, QColor(255, 255, 255))
+    palette.setColor(QPalette.ColorRole.AlternateBase, QColor(245, 245, 245))
+    palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(255, 255, 220))
+    palette.setColor(QPalette.ColorRole.ToolTipText, QColor(0, 0, 0))
+    palette.setColor(QPalette.ColorRole.Text, QColor(50, 50, 50))
+    palette.setColor(QPalette.ColorRole.Button, QColor(240, 240, 240))
+    palette.setColor(QPalette.ColorRole.ButtonText, QColor(50, 50, 50))
+    palette.setColor(QPalette.ColorRole.BrightText, QColor(255, 255, 255))
+    palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
+    palette.setColor(QPalette.ColorRole.Highlight, QColor(255, 215, 0))
+    palette.setColor(QPalette.ColorRole.HighlightedText, QColor(0, 0, 0))
+
+    app.setPalette(palette)
+
+    # CSS Styling
+    app.setStyleSheet("""
+        QWidget {
+            font-family: 'Roboto';
+        }
+        QPushButton {
+            background-color: #D4AF37;
+            color: #333333;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        QPushButton:hover {
+            background-color: #F4C430;
+        }
+        QPushButton:pressed {
+            background-color: #B8860B;
+        }
+        QLineEdit, QComboBox, QDateEdit, QDoubleSpinBox {
+            padding: 6px;
+            border: 1px solid #CCCCCC;
+            border-radius: 4px;
+        }
+        QTableView {
+            border: 1px solid #CCCCCC;
+            gridline-color: #E0E0E0;
+        }
+        QHeaderView::section {
+            background-color: #F0F0F0;
+            padding: 4px;
+            border: 1px solid #CCCCCC;
+            font-weight: bold;
+        }
+    """)
 
 class PandasModel(QAbstractTableModel):
     def __init__(self, data):
@@ -49,24 +110,32 @@ class ExcelViewerTab(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout()
+        layout.setSpacing(20)
+        layout.setContentsMargins(20, 20, 20, 20)
+
+        # Load configuration from config.json
+        with open('KaasQt/config.json', 'r') as config_file:
+            config = json.load(config_file)
 
         if self.sheet_name is None:
             # File selection
             file_layout = QHBoxLayout()
-            self.file_path = QLineEdit(self.config.get("excel_file", ""))
+            file_layout.setSpacing(10)
+            self.file_path = QLineEdit(config.get("excel_file", ""))
             file_button = QPushButton("Browse")
             file_button.clicked.connect(self.browse_file)
             file_layout.addWidget(QLabel("Excel File:"))
-            file_layout.addWidget(self.file_path)
+            file_layout.addWidget(self.file_path, 1)
             file_layout.addWidget(file_button)
             layout.addLayout(file_layout)
 
             # Sheet selection
             sheet_layout = QHBoxLayout()
+            sheet_layout.setSpacing(10)
             self.sheet_combo = QComboBox()
             self.sheet_combo.currentIndexChanged.connect(self.load_sheet)
             sheet_layout.addWidget(QLabel("Sheet:"))
-            sheet_layout.addWidget(self.sheet_combo)
+            sheet_layout.addWidget(self.sheet_combo, 1)
             layout.addLayout(sheet_layout)
         else:
             layout.addWidget(QLabel(f"Sheet: {self.sheet_name}"))
@@ -126,6 +195,8 @@ class AddTransactionForm(QDialog):
     def init_ui(self):
         self.setWindowTitle("Add Transaction")
         layout = QVBoxLayout()
+        layout.setSpacing(20)
+        layout.setContentsMargins(20, 20, 20, 20)
 
         # Add form fields
         self.date_edit = QDateEdit(QDate.currentDate())
@@ -142,6 +213,7 @@ class AddTransactionForm(QDialog):
         self.deducted_received_through_edit = QLineEdit()
 
         form_layout = QFormLayout()
+        form_layout.setSpacing(10)
         form_layout.addRow("Date:", self.date_edit)
         form_layout.addRow("Description:", self.description_edit)
         form_layout.addRow("Amount:", self.amount_edit)
@@ -194,11 +266,35 @@ class ConfigTab(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout()
+        layout.setSpacing(20)
+        layout.setContentsMargins(20, 20, 20, 20)
 
-        # Excel configuration
-        layout.addWidget(QLabel("Excel File:"))
-        self.excel_file = QLineEdit(self.config_manager.get_config().get("excel_file", ""))
-        layout.addWidget(self.excel_file)
+        # Load configuration from config.json
+        with open('KaasQt/config.json', 'r') as config_file:
+            config = json.load(config_file)
+
+        form_layout = QFormLayout()
+        form_layout.setSpacing(10)
+
+        self.excel_file = QLineEdit(config.get("excel_file", ""))
+        self.sheet_name = QLineEdit(config.get("sheet_name", ""))
+        self.markdown_file = QLineEdit(config.get("markdown_file", ""))
+        self.api_id = QLineEdit(config.get("api_id", ""))
+        self.api_hash = QLineEdit(config.get("api_hash", ""))
+        self.phone_number = QLineEdit(config.get("phone_number", ""))
+        self.channel_id = QLineEdit(config.get("channel_id", ""))
+        self.thread_id = QLineEdit(config.get("thread_id", ""))
+
+        form_layout.addRow("Excel File:", self.excel_file)
+        form_layout.addRow("Sheet Name:", self.sheet_name)
+        form_layout.addRow("Markdown File:", self.markdown_file)
+        form_layout.addRow("API ID:", self.api_id)
+        form_layout.addRow("API Hash:", self.api_hash)
+        form_layout.addRow("Phone Number:", self.phone_number)
+        form_layout.addRow("Channel ID:", self.channel_id)
+        form_layout.addRow("Thread ID:", self.thread_id)
+
+        layout.addLayout(form_layout)
 
         # Save button
         save_button = QPushButton("Save Configuration")
@@ -208,8 +304,27 @@ class ConfigTab(QWidget):
         self.setLayout(layout)
 
     def save_config(self):
-        self.config_manager.update_config("excel_file", self.excel_file.text())
+        config = {
+            "excel_file": self.excel_file.text(),
+            "sheet_name": self.sheet_name.text(),
+            "markdown_file": self.markdown_file.text(),
+            "api_id": self.api_id.text(),
+            "api_hash": self.api_hash.text(),
+            "phone_number": self.phone_number.text(),
+            "channel_id": self.channel_id.text(),
+            "thread_id": self.thread_id.text()
+        }
+
+        with open('KaasQt/config.json', 'w') as config_file:
+            json.dump(config, config_file, indent=4)
+
         QMessageBox.information(self, "Success", "Configuration saved successfully!")
+        self.play_sound("save_config.wav")
+
+    def play_sound(self, sound_file):
+        effect = QSoundEffect()
+        effect.setSource(QUrl.fromLocalFile(sound_file))
+        effect.play()
 
 class FunctionsTab(QWidget):
     def __init__(self, config_manager, excel_manager):
@@ -220,6 +335,8 @@ class FunctionsTab(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout()
+        layout.setSpacing(20)
+        layout.setContentsMargins(20, 20, 20, 20)
 
         # Add function buttons here
         process_button = QPushButton("Process Transactions")
@@ -231,6 +348,12 @@ class FunctionsTab(QWidget):
     def process_transactions(self):
         freedom_future_tab = FreedomFutureTab(self.excel_manager)
         freedom_future_tab.process_transactions()
+        self.play_sound("process_transactions.wav")
+
+    def play_sound(self, sound_file):
+        effect = QSoundEffect()
+        effect.setSource(QUrl.fromLocalFile(sound_file))
+        effect.play()
 
 class FreedomFutureTab(QWidget):
     def __init__(self, excel_manager):
@@ -240,6 +363,8 @@ class FreedomFutureTab(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout()
+        layout.setSpacing(20)
+        layout.setContentsMargins(20, 20, 20, 20)
 
         self.table_view = QTableView()
         self.table_view.setSortingEnabled(True)

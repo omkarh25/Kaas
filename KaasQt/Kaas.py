@@ -9,7 +9,7 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QAction, QKeySequence, QShortcut, QFont
 from config_manager import ConfigManager
 from excel_manager import ExcelManager
-from ui_components import ExcelViewerTab, ConfigTab, FunctionsTab, FreedomFutureTab
+from ui_components import ExcelViewerTab, ConfigTab, FunctionsTab, FreedomFutureTab, apply_styles
 from audio_adapter import AudioRecorder
 
 class RecordingThread(QThread):
@@ -131,10 +131,10 @@ class VoiceRecordingTab(QWidget):
         super().closeEvent(event)
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, config_manager, excel_manager):
         super().__init__()
-        self.config_manager = ConfigManager("KaasQt/config.json")
-        self.excel_manager = ExcelManager(self.config_manager.get_config())
+        self.config_manager = config_manager
+        self.excel_manager = excel_manager
         self.init_ui()
         self.create_shortcuts()
         self.showFullScreen()
@@ -296,7 +296,14 @@ def exception_hook(exctype, value, traceback):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    sys.excepthook = exception_hook
-    window = MainWindow()
+    
+    # Apply styles after creating the QApplication instance
+    apply_styles(app)
+    
+    config_manager = ConfigManager("KaasQt/config.json")
+    excel_manager = ExcelManager(config_manager.get_config())
+    
+    window = MainWindow(config_manager, excel_manager)
     window.show()
+    
     sys.exit(app.exec())
