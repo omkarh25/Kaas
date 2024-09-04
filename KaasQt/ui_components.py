@@ -2,7 +2,8 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
     QTableView, QComboBox, QMessageBox, QProgressDialog, QFileDialog,
     QHeaderView, QCheckBox, QDateEdit, QDoubleSpinBox, QDialog, QDialogButtonBox, QFormLayout,
-    QApplication, QStyleFactory, QTextEdit, QScrollArea, QFrame, QListWidget
+    QApplication, QStyleFactory, QTextEdit, QScrollArea, QFrame, QListWidget, QTreeWidget, QTreeWidgetItem,
+    QSplitter
 )
 from PyQt6.QtCore import Qt, QAbstractTableModel, QModelIndex, QTimer, QSortFilterProxyModel, QDate, pyqtSignal
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QFont, QPalette, QColor, QPixmap
@@ -541,31 +542,73 @@ class GitHubTab(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        layout = QVBoxLayout()
+        layout = QHBoxLayout()
         layout.setSpacing(20)
         layout.setContentsMargins(20, 20, 20, 20)
 
-        # Issue list
-        self.issue_list = QListWidget()
-        layout.addWidget(self.issue_list)
+        # Left side: Issue list and filters
+        left_layout = QVBoxLayout()
+        
+        # Filters
+        filter_layout = QHBoxLayout()
+        self.state_filter = QComboBox()
+        self.state_filter.addItems(["All", "Open", "Closed"])
+        self.state_filter.currentTextChanged.connect(self.refresh_issues)
+        filter_layout.addWidget(QLabel("State:"))
+        filter_layout.addWidget(self.state_filter)
+        
+        self.label_filter = QComboBox()
+        self.label_filter.addItem("All Labels")
+        self.label_filter.currentTextChanged.connect(self.refresh_issues)
+        filter_layout.addWidget(QLabel("Label:"))
+        filter_layout.addWidget(self.label_filter)
+        
+        left_layout.addLayout(filter_layout)
+
+        # Issue tree
+        self.issue_tree = QTreeWidget()
+        self.issue_tree.setHeaderLabels(["#", "Title", "State", "Assignees", "Labels"])
+        self.issue_tree.setColumnCount(5)
+        self.issue_tree.itemClicked.connect(self.show_issue_details)
+        left_layout.addWidget(self.issue_tree)
 
         # Refresh button
         refresh_button = QPushButton("Refresh Issues")
         refresh_button.clicked.connect(self.refresh_issues)
-        layout.addWidget(refresh_button)
+        left_layout.addWidget(refresh_button)
+
+        # Right side: Issue details and creation
+        right_layout = QVBoxLayout()
+
+        # Issue details
+        self.issue_details = QTextEdit()
+        self.issue_details.setReadOnly(True)
+        right_layout.addWidget(QLabel("Issue Details:"))
+        right_layout.addWidget(self.issue_details)
 
         # New issue form
+        right_layout.addWidget(QLabel("Create New Issue:"))
         form_layout = QFormLayout()
         self.issue_title = QLineEdit()
         self.issue_body = QTextEdit()
         form_layout.addRow("Title:", self.issue_title)
         form_layout.addRow("Body:", self.issue_body)
-        layout.addLayout(form_layout)
+        right_layout.addLayout(form_layout)
 
         # Create issue button
         create_button = QPushButton("Create Issue")
         create_button.clicked.connect(self.create_issue)
-        layout.addWidget(create_button)
+        right_layout.addWidget(create_button)
+
+        # Add layouts to splitter
+        splitter = QSplitter(Qt.Orientation.Horizontal)
+        left_widget = QWidget()
+        left_widget.setLayout(left_layout)
+        right_widget = QWidget()
+        right_widget.setLayout(right_layout)
+        splitter.addWidget(left_widget)
+        splitter.addWidget(right_widget)
+        layout.addWidget(splitter)
 
         self.setLayout(layout)
 
@@ -580,16 +623,60 @@ class GitHubTab(QWidget):
         repo = config.get("github_repo")
         if token and repo:
             self.github_manager = GitHubManager(token, repo)
+            self.populate_labels()
         else:
             QMessageBox.warning(self, "Configuration Error", "GitHub token or repository not set. Please check your configuration.")
+
+    def populate_labels(self):
+        if not self.github_manager:
+            return
+        labels = self.github_manager.get_labels()
+        self.label_filter.clear()
+        self.label_filter.addItem("All Labels")
+        for label in labels:
+            self.label_filter.addItem(label.name)
 
     def refresh_issues(self):
         if not self.github_manager:
             return
-        self.issue_list.clear()
-        issues = self.github_manager.get_issues()
-        for issue in issues:
-            self.issue_list.addItem(f"#{issue.number}: {issue.title}")
+        self.issue_tree.clear()
+        state = self.state_filter.currentText().lower()
+        if state == "all":
+            state = "all"
+        label = self.label_filter.currentText()
+        if label == "All Labels":
+            label = None
+        try:
+            issues = self.github_manager.get_issues(state=state, labels=[label] if label else None)
+            for issue in issues:
+                item = QTreeWidgetItem(self.issue_tree)
+                item.setText(0, f"#{issue.number}")
+                item.setText(1, issue.title)
+                item.setText(2, issue.state)
+                item.setText(3, ", ".join([assignee.login for assignee in issue.assignees]))
+                item.setText(4, ", ".join([label.name for label in issue.labels]))
+                item.setData(0, Qt.ItemDataRole.UserRole, issue)
+            self.issue_tree.resizeColumnToContents(0)
+            self.issue_tree.resizeColumnToContents(2)
+            self.issue_tree.resizeColumnToContents(3)
+            self.issue_tree.resizeColumnToContents(4)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to fetch issues: {str(e)}")
+
+    def show_issue_details(self, item, column):
+        issue = item.data(0, Qt.ItemDataRole.UserRole)
+        details = f"Title: {issue.title}\n\n"
+        details += f"State: {issue.state}\n"
+        details += f"Created by: {issue.user.login}\n"
+        details += f"Created at: {issue.created_at}\n"
+        details += f"Last updated: {issue.updated_at}\n"
+        details += f"Assignees: {', '.join([assignee.login for assignee in issue.assignees])}\n"
+        details += f"Labels: {', '.join([label.name for label in issue.labels])}\n\n"
+        details += f"Description:\n{issue.body}\n\n"
+        details += f"Comments:\n"
+        for comment in issue.get_comments():
+            details += f"- {comment.user.login}: {comment.body}\n"
+        self.issue_details.setPlainText(details)
 
     def create_issue(self):
         if not self.github_manager:
@@ -598,11 +685,11 @@ class GitHubTab(QWidget):
         body = self.issue_body.toPlainText()
         if title:
             try:
-                self.github_manager.create_issue(title, body)
+                issue = self.github_manager.create_issue(title, body)
                 self.issue_title.clear()
                 self.issue_body.clear()
                 self.refresh_issues()
-                QMessageBox.information(self, "Success", "Issue created successfully!")
+                QMessageBox.information(self, "Success", f"Issue #{issue.number} created successfully!")
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Failed to create issue: {str(e)}")
         else:

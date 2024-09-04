@@ -7,8 +7,11 @@ class GitHubManager:
         self.g = Github(auth=self.auth)
         self.repo = self.g.get_repo(repo_name)
 
-    def get_issues(self, state="all"):
-        return self.repo.get_issues(state=state)
+    def get_issues(self, state="all", labels=None):
+        if labels is None:
+            return self.repo.get_issues(state=state)
+        else:
+            return self.repo.get_issues(state=state, labels=labels)
 
     def create_issue(self, title, body):
         return self.repo.create_issue(title=title, body=body)
@@ -20,3 +23,6 @@ class GitHubManager:
     def add_comment(self, issue_number, comment):
         issue = self.repo.get_issue(number=issue_number)
         issue.create_comment(comment)
+
+    def get_labels(self):
+        return self.repo.get_labels()
