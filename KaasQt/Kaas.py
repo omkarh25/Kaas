@@ -1,29 +1,131 @@
 import asyncio
 import json
 import sys
-
-from obsidian_adapter import (
-    PaymentProcessor,
-    excel_to_markdown,
-    update_excel_from_markdown,
-)
+import pandas as pd
 from PyQt6.QtWidgets import (
-    QApplication,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QTabWidget,
-    QVBoxLayout,
-    QWidget,
-    QMessageBox,
-    QProgressDialog,
+    QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QHBoxLayout,
+    QLabel, QLineEdit, QPushButton, QTableView, QComboBox, QMessageBox,
+    QProgressDialog, QFileDialog, QHeaderView
 )
-from PyQt6.QtCore import QTimer, Qt
+from PyQt6.QtCore import Qt, QAbstractTableModel, QModelIndex, QTimer, QSortFilterProxyModel
+from PyQt6.QtGui import QAction
+from obsidian_adapter import PaymentProcessor
 from TelegramAdapter import TelegramAdapter
 
 CONFIG_FILE = "KaasQt/config.json"
 
+class PandasModel(QAbstractTableModel):
+    def __init__(self, data):
+        super().__init__()
+        self._data = data
+
+    def rowCount(self, parent=QModelIndex()):
+        return self._data.shape[0]
+
+    def columnCount(self, parent=QModelIndex()):
+        return self._data.shape[1]
+
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
+            return str(self._data.iloc[index.row(), index.column()])
+        return None
+
+    def headerData(self, section, orientation, role):
+        if role == Qt.ItemDataRole.DisplayRole:
+            if orientation == Qt.Orientation.Horizontal:
+                return str(self._data.columns[section])
+            if orientation == Qt.Orientation.Vertical:
+                return str(self._data.index[section])
+        return None
+
+    def sort(self, column, order):
+        self.layoutAboutToBeChanged.emit()
+        self._data = self._data.sort_values(self._data.columns[column], ascending=order == Qt.SortOrder.AscendingOrder)
+        self.layoutChanged.emit()
+
+class ExcelViewerTab(QWidget):
+    def __init__(self, config):
+        super().__init__()
+        self.config = config
+        self.df = None
+        self.init_ui()
+
+    def init_ui(self):
+        layout = QVBoxLayout()
+
+        # File selection
+        file_layout = QHBoxLayout()
+        self.file_path = QLineEdit(self.config.get("excel_file", ""))
+        file_button = QPushButton("Browse")
+        file_button.clicked.connect(self.browse_file)
+        file_layout.addWidget(QLabel("Excel File:"))
+        file_layout.addWidget(self.file_path)
+        file_layout.addWidget(file_button)
+        layout.addLayout(file_layout)
+
+        # Sheet selection
+        sheet_layout = QHBoxLayout()
+        self.sheet_combo = QComboBox()
+        self.sheet_combo.currentIndexChanged.connect(self.load_sheet)
+        sheet_layout.addWidget(QLabel("Sheet:"))
+        sheet_layout.addWidget(self.sheet_combo)
+        layout.addLayout(sheet_layout)
+
+        # Search and filter
+        search_layout = QHBoxLayout()
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("Search...")
+        self.search_input.textChanged.connect(self.filter_data)
+        search_layout.addWidget(self.search_input)
+        layout.addLayout(search_layout)
+
+        # Table view
+        self.table_view = QTableView()
+        self.table_view.setSortingEnabled(True)
+        self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self.table_view.horizontalHeader().setStretchLastSection(True)
+        layout.addWidget(self.table_view)
+
+        self.setLayout(layout)
+
+        # Load initial data
+        self.load_excel()
+
+    def browse_file(self):
+        file_name, _ = QFileDialog.getOpenFileName(self, "Open Excel File", "", "Excel Files (*.xlsx *.xls)")
+        if file_name:
+            self.file_path.setText(file_name)
+            self.config["excel_file"] = file_name
+            self.load_excel()
+
+    def load_excel(self):
+        try:
+            self.excel_file = pd.ExcelFile(self.file_path.text())
+            self.sheet_combo.clear()
+            self.sheet_combo.addItems(self.excel_file.sheet_names)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to load Excel file: {str(e)}")
+
+    def load_sheet(self):
+        sheet_name = self.sheet_combo.currentText()
+        if sheet_name:
+            try:
+                self.df = pd.read_excel(self.excel_file, sheet_name)
+                self.setup_model()
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Failed to load sheet: {str(e)}")
+
+    def setup_model(self):
+        model = PandasModel(self.df)
+        self.proxy_model = QSortFilterProxyModel()
+        self.proxy_model.setSourceModel(model)
+        self.proxy_model.setFilterKeyColumn(-1)  # Filter on all columns
+        self.proxy_model.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.table_view.setModel(self.proxy_model)
+
+    def filter_data(self):
+        search_text = self.search_input.text()
+        self.proxy_model.setFilterFixedString(search_text)
 
 class ConfigTab(QWidget):
     def __init__(self, config):
@@ -195,16 +297,14 @@ class FunctionsTab(QWidget):
             await adapter.stop()
 
 
-class MainWindow(QWidget):
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle("Adapter Configuration and Functions")
-        self.setGeometry(100, 100, 400, 300)
-
-        layout = QVBoxLayout()
+        self.setWindowTitle("Kaas - Excel Viewer and Adapter")
+        self.setGeometry(100, 100, 800, 600)
 
         # Load configuration
         try:
@@ -213,14 +313,27 @@ class MainWindow(QWidget):
         except FileNotFoundError:
             config = {}
 
+        # Create central widget and layout
+        central_widget = QWidget()
+        layout = QVBoxLayout(central_widget)
+
         # Create tab widget
         tab_widget = QTabWidget()
+        tab_widget.addTab(ExcelViewerTab(config), "Excel Viewer")
         tab_widget.addTab(ConfigTab(config), "Configuration")
         tab_widget.addTab(FunctionsTab(config), "Functions")
 
         layout.addWidget(tab_widget)
-        self.setLayout(layout)
+        self.setCentralWidget(central_widget)
 
+        # Create menu bar
+        menu_bar = self.menuBar()
+        file_menu = menu_bar.addMenu("File")
+        
+        exit_action = QAction("Exit", self)
+        exit_action.setShortcut("Ctrl+Q")
+        exit_action.triggered.connect(self.close)
+        file_menu.addAction(exit_action)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
