@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QComboBox, QListWidget, QCheckBox, QPushButton
-from PyQt5.QtCore import Qt
+from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QComboBox, QListWidget, QCheckBox, QPushButton, QLabel, QMessageBox
+from PyQt6.QtCore import Qt
 from excel_manager import ExcelManager
 
 class MainWindow(QMainWindow):
@@ -9,6 +9,12 @@ class MainWindow(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
+        # Create main layout
+        main_layout = QVBoxLayout()
+        central_widget = QWidget()
+        central_widget.setLayout(main_layout)
+        self.setCentralWidget(central_widget)
+
         # ... existing UI setup code ...
 
         # Add Dashboard dropdown

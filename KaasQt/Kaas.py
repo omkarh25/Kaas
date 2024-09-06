@@ -180,9 +180,10 @@ class MainWindow(QMainWindow):
         excel_viewer = QWidget()
         excel_layout = QVBoxLayout(excel_viewer)
         
-        # Create a single dropdown for all sheets including Dashboard
+        # Create a single dropdown for all sheets including Dashboards
         self.excel_tab_selector = QComboBox()
         self.excel_tab_selector.addItem("Main Dashboard")
+        self.excel_tab_selector.addItem("Checklist Dashboard")
         self.excel_tab_selector.addItems(["Tasks", "Accounts(Present)", "Transactions(Past)", "Freedom(Future)", "Category", "Index"])
         self.excel_tab_selector.currentIndexChanged.connect(self.on_tab_changed)
         excel_layout.addWidget(self.excel_tab_selector)
@@ -193,6 +194,10 @@ class MainWindow(QMainWindow):
         # Add main dashboard widget
         self.main_dashboard_widget = self.create_main_dashboard()
         self.excel_stacked_widget.addWidget(self.main_dashboard_widget)
+
+        # Add checklist dashboard widget
+        self.checklist_dashboard_widget = self.create_checklist_dashboard()
+        self.excel_stacked_widget.addWidget(self.checklist_dashboard_widget)
 
         # Add other tabs
         self.excel_stacked_widget.addWidget(self.create_tab("Tasks"))
@@ -330,11 +335,11 @@ class MainWindow(QMainWindow):
     def on_tab_changed(self, index):
         if index == 0:  # Main Dashboard
             self.update_main_dashboard()
-        elif index == 1:  # Regular Dashboard
-            self.update_dashboard()
+        elif index == 1:  # Checklist Dashboard
+            self.update_checklist_dashboard()
         self.excel_stacked_widget.setCurrentIndex(index)
 
-    def update_dashboard(self):
+    def update_checklist_dashboard(self):
         # Clear existing items
         for i in reversed(range(self.dashboard_layout.count())): 
             self.dashboard_layout.itemAt(i).widget().setParent(None)
@@ -391,7 +396,7 @@ class MainWindow(QMainWindow):
         if selected_rows:
             try:
                 self.excel_manager.process_transactions(selected_rows)
-                self.update_dashboard()
+                self.update_checklist_dashboard()
                 QMessageBox.information(self, "Success", "Selected transactions processed successfully!")
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Failed to process transactions: {str(e)}")
@@ -424,16 +429,18 @@ class MainWindow(QMainWindow):
         budget_left = 24000000 - total_expense
         weeks_left = self.calculate_weeks_left()
 
-        info_boxes = [
+        self.info_boxes = []
+        info_boxes_data = [
             ("Current Total Project Expense", f"₹{total_expense:,.2f}", "expense"),
             ("Budget Left", f"₹{budget_left:,.2f}", "budget"),
             ("Project Budget", "₹24,000,000.00", "total"),
             ("Project Countdown", f"{weeks_left} weeks left", "countdown")
         ]
 
-        for title, value, style in info_boxes:
+        for title, value, style in info_boxes_data:
             box = self.create_info_box(title, value, style)
             info_layout.addWidget(box)
+            self.info_boxes.append(box)
 
         layout.addLayout(info_layout)
 
@@ -509,22 +516,32 @@ class MainWindow(QMainWindow):
         return weeks_left
 
     def update_main_dashboard(self):
-        widget = self.excel_stacked_widget.widget(0)
-        layout = widget.layout()
-
         total_expense = self.calculate_total_expense()
         budget_left = 24000000 - total_expense
         weeks_left = self.calculate_weeks_left()
 
         # Update info boxes
-        info_layout = layout.itemAt(3).layout()
-        info_layout.itemAt(0).widget().layout().itemAt(1).widget().setText(f"₹{total_expense:,.2f}")
-        info_layout.itemAt(1).widget().layout().itemAt(1).widget().setText(f"₹{budget_left:,.2f}")
-        info_layout.itemAt(3).widget().layout().itemAt(1).widget().setText(f"{weeks_left} weeks left")
+        new_values = [
+            f"₹{total_expense:,.2f}",
+            f"₹{budget_left:,.2f}",
+            "₹24,000,000.00",
+            f"{weeks_left} weeks left"
+        ]
+
+        for box, new_value in zip(self.info_boxes, new_values):
+            value_label = box.layout().itemAt(1).widget()
+            if value_label:
+                value_label.setText(new_value)
 
         # Update progress bar
         self.progress_bar.setValue(int(total_expense))
         self.progress_bar.setFormat("%.2f%%" % ((total_expense / 24000000) * 100))
+
+    def create_checklist_dashboard(self):
+        widget = QWidget()
+        self.dashboard_layout = QVBoxLayout(widget)
+        self.update_checklist_dashboard()
+        return widget
 
 def exception_hook(exctype, value, traceback):
     print(f"Uncaught exception: {exctype}, {value}")
