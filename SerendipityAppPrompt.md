@@ -47,6 +47,9 @@ Karma : Roles, duties, responsibilites with assisted workflows to complete their
 13. Loading symbol update
 14. Cache mechanism. Fetch only from last updated time
 15. Backend Kaas app running on server to process all requests
+16. Dhoom studios booking system
+17. Enterprise search
+18. Tag studio integration
 
 Bugs:
 1. Remove voice recorder feature for puclic version
