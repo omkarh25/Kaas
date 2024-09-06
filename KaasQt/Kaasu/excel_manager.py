@@ -1,6 +1,10 @@
 import pandas as pd
 from datetime import datetime
 import os
+import warnings
+
+# Suppress the specific FutureWarning
+warnings.filterwarnings("ignore", category=FutureWarning, message=".*datetime64.*")
 
 class ExcelManager:
     def __init__(self, config):
@@ -14,7 +18,7 @@ class ExcelManager:
         if file_path and os.path.exists(file_path):
             try:
                 self.excel_file = pd.ExcelFile(file_path)
-                self.sheets = {sheet: pd.read_excel(self.excel_file, sheet) for sheet in self.excel_file.sheet_names}
+                self.sheets = {sheet: self.read_excel_with_datetime(self.excel_file, sheet) for sheet in self.excel_file.sheet_names}
                 print(f"Loaded Excel file: {file_path}")
                 print(f"Available sheets: {self.get_sheet_names()}")
             except Exception as e:
@@ -27,6 +31,19 @@ class ExcelManager:
             self.sheets['Freedom(Future)'] = pd.DataFrame()
         if 'Transactions(Past)' not in self.sheets:
             self.sheets['Transactions(Past)'] = pd.DataFrame()
+
+    def read_excel_with_datetime(self, excel_file, sheet_name):
+        # Read the Excel file without parsing dates
+        df = pd.read_excel(excel_file, sheet_name, parse_dates=False)
+        
+        # Try to convert each column to datetime if it contains date-like strings
+        for col in df.columns:
+            if df[col].dtype == 'object':
+                try:
+                    df[col] = pd.to_datetime(df[col], format='mixed', errors='ignore')
+                except ValueError:
+                    pass  # If conversion fails, leave the column as is
+        return df
 
     def get_sheet_names(self):
         return list(self.sheets.keys()) if self.excel_file else []
@@ -105,7 +122,7 @@ class ExcelManager:
     def add_transaction(self, new_transaction):
         # Add to Transactions(Past) sheet
         past_sheet = self.sheets['Transactions(Past)']
-        past_sheet = past_sheet.append(new_transaction, ignore_index=True)
+        past_sheet = pd.concat([past_sheet, pd.DataFrame([new_transaction])], ignore_index=True)
 
         # Add to respective category sheet
         category = new_transaction['Category']
@@ -115,7 +132,7 @@ class ExcelManager:
         category_sheet_name = f"{self.valid_categories.index(category) + 1}_{category}"
         if category_sheet_name in self.sheets:
             category_sheet = self.sheets[category_sheet_name]
-            category_sheet = category_sheet.append(new_transaction, ignore_index=True)
+            category_sheet = pd.concat([category_sheet, pd.DataFrame([new_transaction])], ignore_index=True)
             self.sheets[category_sheet_name] = category_sheet
         else:
             print(f"Warning: Sheet '{category_sheet_name}' not found. Creating new sheet.")
@@ -143,3 +160,7 @@ class ExcelManager:
 
         print("Transaction added successfully")
         self.refresh_all_sheets()
+
+# Add logging
+import logging
+logging.info("ExcelManager module loaded successfully")

@@ -50,8 +50,28 @@ Karma : Roles, duties, responsibilites with assisted workflows to complete their
 16. Dhoom studios booking system
 17. Enterprise search
 18. Tag studio integration
+19. Open ai api cost integration
+20. Password manager with RBAC
 
 Bugs:
-1. Remove voice recorder feature for puclic version
+1. Remove voice recorder feature for public version
 2. Config.json should be part of the package
 3. Operating Instructions
+
+Claude Dev: /Users/omkar/miniconda3/bin/conda run -n macenv python KaasQt/Kaas.py
+
+Hackathon Planning:
+
+Day 1:
+1. Git account for everyone and fork "Kaas" project
+2. Cursor SetUp with proper api project access
+3. Git Pull "main" and clean modules
+4. Fix all issues with the refactor
+5. Configure config.json and Run
+6. Pair programmer and non programmer
+7. Create workflow for self. Project Manager creates an improved version of the app
+
+Day 2.
+1. PyQt explanation
+2. Prompt engineering basics
+3. Use the given personalized prompt flow to create the app they need
