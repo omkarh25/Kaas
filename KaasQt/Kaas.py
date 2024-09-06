@@ -4,7 +4,7 @@ import logging
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QStackedWidget, QComboBox, QLabel, QSpacerItem, QSizePolicy, QTextEdit, QCheckBox, QMessageBox,
-    QGridLayout, QProgressBar, QFrame
+    QGridLayout, QProgressBar, QFrame, QProgressDialog
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QAction, QKeySequence, QShortcut, QFont, QColor
@@ -240,9 +240,11 @@ class MainWindow(QMainWindow):
         self.create_menu_bar()
 
     def create_tab(self, name):
+        self.show_loading_dialog(f"Loading {name} tab...")
         return ExcelViewerTab(self.config_manager.get_config(), self.excel_manager, sheet_name=name)
 
     def create_category_tab(self):
+        self.show_loading_dialog("Loading Category tab...")
         tab = QWidget()
         layout = QVBoxLayout(tab)
         category_selector = QComboBox()
@@ -252,6 +254,7 @@ class MainWindow(QMainWindow):
         return tab
 
     def create_index_tab(self):
+        self.show_loading_dialog("Loading Index tab...")
         tab = QWidget()
         layout = QVBoxLayout(tab)
         index_selector = QComboBox()
@@ -333,6 +336,7 @@ class MainWindow(QMainWindow):
         file_menu.addAction(exit_action)
 
     def on_tab_changed(self, index):
+        self.show_loading_dialog("Loading data...")
         if index == 0:  # Main Dashboard
             self.update_main_dashboard()
         elif index == 1:  # Checklist Dashboard
@@ -340,6 +344,7 @@ class MainWindow(QMainWindow):
         self.excel_stacked_widget.setCurrentIndex(index)
 
     def update_checklist_dashboard(self):
+        self.show_loading_dialog("Updating checklist dashboard...")
         # Clear existing items
         for i in reversed(range(self.dashboard_layout.count())): 
             self.dashboard_layout.itemAt(i).widget().setParent(None)
@@ -367,6 +372,7 @@ class MainWindow(QMainWindow):
         self.dashboard_layout.addWidget(process_button)
 
     def process_selected_transactions(self):
+        self.show_loading_dialog("Processing transactions...")
         selected_rows = []
         for i in range(self.dashboard_layout.count() - 1):  # Exclude the button
             section_widget = self.dashboard_layout.itemAt(i).widget()
@@ -516,6 +522,7 @@ class MainWindow(QMainWindow):
         return weeks_left
 
     def update_main_dashboard(self):
+        self.show_loading_dialog("Updating main dashboard...")
         total_expense = self.calculate_total_expense()
         budget_left = 24000000 - total_expense
         weeks_left = self.calculate_weeks_left()
@@ -542,6 +549,16 @@ class MainWindow(QMainWindow):
         self.dashboard_layout = QVBoxLayout(widget)
         self.update_checklist_dashboard()
         return widget
+
+    def show_loading_dialog(self, message="Loading...", duration=1000):
+        self.progress_dialog = QProgressDialog(message, None, 0, 0, self)
+        self.progress_dialog.setWindowTitle("Please Wait")
+        self.progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
+        self.progress_dialog.setMinimumDuration(0)
+        self.progress_dialog.setCancelButton(None)
+        self.progress_dialog.show()
+        
+        QTimer.singleShot(duration, self.progress_dialog.close)
 
 def exception_hook(exctype, value, traceback):
     print(f"Uncaught exception: {exctype}, {value}")

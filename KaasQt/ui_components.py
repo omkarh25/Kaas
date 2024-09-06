@@ -172,6 +172,7 @@ class ExcelViewerTab(QWidget):
             self.sheet_combo.addItems(self.excel_manager.get_sheet_names())
 
     def load_sheet(self):
+        self.show_loading_dialog("Loading sheet data...")
         sheet_name = self.sheet_name or (self.sheet_combo.currentText() if hasattr(self, 'sheet_combo') else None)
         if sheet_name:
             df = self.excel_manager.get_sheet_data(sheet_name)
@@ -189,6 +190,16 @@ class ExcelViewerTab(QWidget):
         form = AddTransactionForm(self.excel_manager)
         if form.exec() == QDialog.DialogCode.Accepted:
             self.load_sheet()  # Refresh the table view
+
+    def show_loading_dialog(self, message="Loading...", duration=1000):
+        self.progress_dialog = QProgressDialog(message, None, 0, 0, self)
+        self.progress_dialog.setWindowTitle("Please Wait")
+        self.progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
+        self.progress_dialog.setMinimumDuration(0)
+        self.progress_dialog.setCancelButton(None)
+        self.progress_dialog.show()
+        
+        QTimer.singleShot(duration, self.progress_dialog.close)
 
 class AddTransactionForm(QDialog):
     def __init__(self, excel_manager):
@@ -479,6 +490,7 @@ class TelegramTab(QWidget):
     def on_channel_changed(self, index):
         channel_id = self.channel_combo.itemData(index)
         if channel_id:
+            self.show_loading_dialog("Switching channel...")
             self.telegram_adapter.set_channel(channel_id)
             self.fetch_new_messages()
         else:
@@ -488,6 +500,7 @@ class TelegramTab(QWidget):
         message = self.message_input.text()
         if message:
             try:
+                self.show_loading_dialog("Sending message...")
                 self.telegram_adapter.send_message(message)
                 self.message_input.clear()
                 self.fetch_new_messages()
@@ -495,6 +508,7 @@ class TelegramTab(QWidget):
                 QMessageBox.warning(self, "Error", str(e))
 
     def fetch_new_messages(self):
+        self.show_loading_dialog("Fetching messages...")
         messages = self.telegram_adapter.get_messages()
         self.display_messages(messages)
 
@@ -533,6 +547,16 @@ class TelegramTab(QWidget):
         reply.finished.connect(loop.quit)
         loop.exec()
         return reply.readAll()
+
+    def show_loading_dialog(self, message="Loading...", duration=1000):
+        self.progress_dialog = QProgressDialog(message, None, 0, 0, self)
+        self.progress_dialog.setWindowTitle("Please Wait")
+        self.progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
+        self.progress_dialog.setMinimumDuration(0)
+        self.progress_dialog.setCancelButton(None)
+        self.progress_dialog.show()
+        
+        QTimer.singleShot(duration, self.progress_dialog.close)
 
 class GitHubTab(QWidget):
     def __init__(self, config_manager):
@@ -614,6 +638,7 @@ class GitHubTab(QWidget):
 
     def showEvent(self, event):
         super().showEvent(event)
+        self.show_loading_dialog("Initializing GitHub connection...")
         self.initialize_github_manager()
         self.refresh_issues()
 
@@ -637,6 +662,7 @@ class GitHubTab(QWidget):
             self.label_filter.addItem(label.name)
 
     def refresh_issues(self):
+        self.show_loading_dialog("Fetching issues...")
         if not self.github_manager:
             return
         self.issue_tree.clear()
@@ -679,6 +705,7 @@ class GitHubTab(QWidget):
         self.issue_details.setPlainText(details)
 
     def create_issue(self):
+        self.show_loading_dialog("Creating issue...")
         if not self.github_manager:
             return
         title = self.issue_title.text()
@@ -694,3 +721,13 @@ class GitHubTab(QWidget):
                 QMessageBox.critical(self, "Error", f"Failed to create issue: {str(e)}")
         else:
             QMessageBox.warning(self, "Invalid Input", "Please enter an issue title.")
+
+    def show_loading_dialog(self, message="Loading...", duration=1000):
+        self.progress_dialog = QProgressDialog(message, None, 0, 0, self)
+        self.progress_dialog.setWindowTitle("Please Wait")
+        self.progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
+        self.progress_dialog.setMinimumDuration(0)
+        self.progress_dialog.setCancelButton(None)
+        self.progress_dialog.show()
+        
+        QTimer.singleShot(duration, self.progress_dialog.close)
