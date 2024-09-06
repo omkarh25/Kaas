@@ -34,3 +34,21 @@ Karma : Roles, duties, responsibilites with assisted workflows to complete their
 
 1. Fabric Integration
 2. Kaas Onboard, Khaas improvements and Cause initiation
+3. Telegram audio to project pattern
+4. Github commits, PRs and better issues management with comments
+5. Get last 5 images of Dhoom studios project and help designer (Images should be fetched from local source)
+6. Employee Management System (Auto Contract letter, Auto Releiving letter, Auto typing results)
+7. Document Management System
+8. Native Markdown editor
+9. Enterprise chat
+10. Open api and claude key management
+11. Inventory Management System
+12. SQLDB n Excel converters
+13. Loading symbol update
+14. Cache mechanism. Fetch only from last updated time
+15. Backend Kaas app running on server to process all requests
+
+Bugs:
+1. Remove voice recorder feature for puclic version
+2. Config.json should be part of the package
+3. Operating Instructions
