@@ -167,3 +167,7 @@ class ExcelManager:
             "past_due": past_due_payments,
             "upcoming": upcoming_payments
         }
+
+    def get_total_expense(self):
+        accounts_sheet = self.get_sheet_data('Accounts(Present)')
+        return accounts_sheet['CurrentBalance'].sum()

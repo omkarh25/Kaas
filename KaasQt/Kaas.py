@@ -3,10 +3,12 @@ import traceback
 import logging
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QPushButton, QStackedWidget, QComboBox, QLabel, QSpacerItem, QSizePolicy, QTextEdit, QCheckBox, QMessageBox
+    QPushButton, QStackedWidget, QComboBox, QLabel, QSpacerItem, QSizePolicy, QTextEdit, QCheckBox, QMessageBox,
+    QGridLayout, QProgressBar, QFrame
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
-from PyQt6.QtGui import QAction, QKeySequence, QShortcut, QFont
+from PyQt6.QtGui import QAction, QKeySequence, QShortcut, QFont, QColor
+from datetime import datetime, timedelta
 from config_manager import ConfigManager
 from excel_manager import ExcelManager
 from ui_components import ExcelViewerTab, ConfigTab, FunctionsTab, FreedomFutureTab, apply_styles, TelegramTab, GitHubTab
@@ -180,7 +182,7 @@ class MainWindow(QMainWindow):
         
         # Create a single dropdown for all sheets including Dashboard
         self.excel_tab_selector = QComboBox()
-        self.excel_tab_selector.addItem("Dashboard")
+        self.excel_tab_selector.addItem("Main Dashboard")
         self.excel_tab_selector.addItems(["Tasks", "Accounts(Present)", "Transactions(Past)", "Freedom(Future)", "Category", "Index"])
         self.excel_tab_selector.currentIndexChanged.connect(self.on_tab_changed)
         excel_layout.addWidget(self.excel_tab_selector)
@@ -188,11 +190,9 @@ class MainWindow(QMainWindow):
         # Create stacked widget for all content
         self.excel_stacked_widget = QStackedWidget()
 
-        # Add dashboard widget
-        self.dashboard_widget = QWidget()
-        self.dashboard_layout = QVBoxLayout()
-        self.dashboard_widget.setLayout(self.dashboard_layout)
-        self.excel_stacked_widget.addWidget(self.dashboard_widget)
+        # Add main dashboard widget
+        self.main_dashboard_widget = self.create_main_dashboard()
+        self.excel_stacked_widget.addWidget(self.main_dashboard_widget)
 
         # Add other tabs
         self.excel_stacked_widget.addWidget(self.create_tab("Tasks"))
@@ -328,7 +328,9 @@ class MainWindow(QMainWindow):
         file_menu.addAction(exit_action)
 
     def on_tab_changed(self, index):
-        if index == 0:  # Dashboard
+        if index == 0:  # Main Dashboard
+            self.update_main_dashboard()
+        elif index == 1:  # Regular Dashboard
             self.update_dashboard()
         self.excel_stacked_widget.setCurrentIndex(index)
 
@@ -395,6 +397,134 @@ class MainWindow(QMainWindow):
                 QMessageBox.critical(self, "Error", f"Failed to process transactions: {str(e)}")
         else:
             QMessageBox.warning(self, "No Selection", "Please select at least one valid transaction to process.")
+
+    def create_main_dashboard(self):
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        layout.setSpacing(20)
+        layout.setContentsMargins(30, 30, 30, 30)
+
+        # Title
+        title = QLabel("Project Dashboard")
+        title.setFont(QFont("Arial", 24, QFont.Weight.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title)
+
+        # Horizontal line
+        line = QFrame()
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setFrameShadow(QFrame.Shadow.Sunken)
+        layout.addWidget(line)
+
+        # Create info boxes
+        info_layout = QHBoxLayout()
+        info_layout.setSpacing(20)
+
+        total_expense = self.calculate_total_expense()
+        budget_left = 24000000 - total_expense
+        weeks_left = self.calculate_weeks_left()
+
+        info_boxes = [
+            ("Current Total Project Expense", f"₹{total_expense:,.2f}", "expense"),
+            ("Budget Left", f"₹{budget_left:,.2f}", "budget"),
+            ("Project Budget", "₹24,000,000.00", "total"),
+            ("Project Countdown", f"{weeks_left} weeks left", "countdown")
+        ]
+
+        for title, value, style in info_boxes:
+            box = self.create_info_box(title, value, style)
+            info_layout.addWidget(box)
+
+        layout.addLayout(info_layout)
+
+        # Budget Progress Bar
+        progress_label = QLabel("Budget Progress")
+        progress_label.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        layout.addWidget(progress_label)
+
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setMaximum(24000000)
+        self.progress_bar.setValue(int(total_expense))
+        self.progress_bar.setFormat("%.2f%%" % ((total_expense / 24000000) * 100))
+        self.progress_bar.setStyleSheet("""
+            QProgressBar {
+                border: 2px solid grey;
+                border-radius: 5px;
+                text-align: center;
+            }
+            QProgressBar::chunk {
+                background-color: #4CAF50;
+                width: 10px;
+                margin: 0.5px;
+            }
+        """)
+        layout.addWidget(self.progress_bar)
+
+        layout.addStretch(1)  # Add stretch to push everything to the top
+
+        return widget
+
+    def create_info_box(self, title, value, style):
+        box = QFrame()
+        box.setFrameShape(QFrame.Shape.StyledPanel)
+        box.setStyleSheet(f"""
+            QFrame {{
+                border: 2px solid #ddd;
+                border-radius: 10px;
+                padding: 10px;
+                background-color: {self.get_box_color(style)};
+            }}
+        """)
+
+        box_layout = QVBoxLayout(box)
+
+        title_label = QLabel(title)
+        title_label.setFont(QFont("Arial", 12))
+        title_label.setStyleSheet("color: #555;")
+        box_layout.addWidget(title_label)
+
+        value_label = QLabel(value)
+        value_label.setFont(QFont("Arial", 16, QFont.Weight.Bold))
+        box_layout.addWidget(value_label)
+
+        return box
+
+    def get_box_color(self, style):
+        colors = {
+            "expense": "#FFF3E0",  # Light Orange
+            "budget": "#E8F5E9",   # Light Green
+            "total": "#E3F2FD",    # Light Blue
+            "countdown": "#F3E5F5" # Light Purple
+        }
+        return colors.get(style, "#FFFFFF")  # Default to white if style not found
+
+    def calculate_total_expense(self):
+        accounts_sheet = self.excel_manager.get_sheet_data('Accounts(Present)')
+        return accounts_sheet['CurrentBalance'].sum()
+
+    def calculate_weeks_left(self):
+        today = datetime.now()
+        end_of_year = datetime(today.year, 12, 31)
+        weeks_left = (end_of_year - today).days // 7
+        return weeks_left
+
+    def update_main_dashboard(self):
+        widget = self.excel_stacked_widget.widget(0)
+        layout = widget.layout()
+
+        total_expense = self.calculate_total_expense()
+        budget_left = 24000000 - total_expense
+        weeks_left = self.calculate_weeks_left()
+
+        # Update info boxes
+        info_layout = layout.itemAt(3).layout()
+        info_layout.itemAt(0).widget().layout().itemAt(1).widget().setText(f"₹{total_expense:,.2f}")
+        info_layout.itemAt(1).widget().layout().itemAt(1).widget().setText(f"₹{budget_left:,.2f}")
+        info_layout.itemAt(3).widget().layout().itemAt(1).widget().setText(f"{weeks_left} weeks left")
+
+        # Update progress bar
+        self.progress_bar.setValue(int(total_expense))
+        self.progress_bar.setFormat("%.2f%%" % ((total_expense / 24000000) * 100))
 
 def exception_hook(exctype, value, traceback):
     print(f"Uncaught exception: {exctype}, {value}")
