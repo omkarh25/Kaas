@@ -1,6 +1,13 @@
 import sys
 import traceback
 import logging
+import os
+import json
+import asyncio
+
+# Add the parent directory of KaasQt to the Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QStackedWidget, QComboBox, QLabel, QSpacerItem, QSizePolicy, QTextEdit
@@ -8,10 +15,12 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QAction, QKeySequence, QShortcut, QFont
 from config_manager import ConfigManager
-from excel_manager import ExcelManager
+from KaasQt.Kaasu.excel_manager import ExcelManager
 from ui_components import ExcelViewerTab, ConfigTab, FunctionsTab, FreedomFutureTab, apply_styles, TelegramTab, GitHubTab
-from KaasQt.Kaasu.audio_adapter import AudioRecorder
 from KaasQt.Khaas.TelegramAdapter import TelegramAdapter
+from KaasQt.Kaasu.audio_adapter import AudioRecorder
+
+logging.basicConfig(level=logging.INFO)
 
 class RecordingThread(QThread):
     finished = pyqtSignal()
@@ -132,15 +141,46 @@ class VoiceRecordingTab(QWidget):
         super().closeEvent(event)
 
 class MainWindow(QMainWindow):
-    def __init__(self, config_manager, excel_manager):
+    def __init__(self):
         super().__init__()
-        self.config_manager = config_manager
-        self.excel_manager = excel_manager
-        self.telegram_adapter = TelegramAdapter(
-            self.config_manager.get_config()['api_id'],
-            self.config_manager.get_config()['api_hash'],
-            self.config_manager.get_config()['phone_number']
-        )
+        
+        # Set the default Excel file path
+        default_excel_path = os.path.join('KaasQt', 'Kaasu', 'ExcelData', 'Kaas.xlsx')
+        
+        # Initialize ConfigManager with the default Excel path
+        self.config_manager = ConfigManager("KaasQt/config.json")
+        config = self.config_manager.get_config()
+        if 'excel_file_path' not in config:
+            config['excel_file_path'] = default_excel_path
+            self.config_manager.save_config(config)
+        
+        # Initialize ExcelManager with the config
+        try:
+            self.excel_manager = ExcelManager(config)
+        except FileNotFoundError:
+            logging.error(f"Excel file not found: {config['excel_file_path']}")
+            print(f"Looking for Excel file at: {os.path.abspath(config['excel_file_path'])}")
+            self.excel_manager = None
+        
+        # Load the config
+        with open('KaasQt/config.json', 'r') as config_file:
+            config = json.load(config_file)
+
+        # Initialize TelegramAdapter with all required parameters
+        try:
+            self.telegram_adapter = TelegramAdapter(
+                api_id=config['api_id'],
+                api_hash=config['api_hash'],
+                phone_number=config['phone_number'],
+                channel_id=config['channel_id'],
+                thread_id=config['thread_id']
+            )
+            # Start the client
+            asyncio.get_event_loop().run_until_complete(self.telegram_adapter.start())
+        except TypeError as e:
+            logging.error(f"Failed to initialize TelegramAdapter: {str(e)}")
+            self.telegram_adapter = None
+        
         self.init_ui()
         self.create_shortcuts()
         self.showFullScreen()
@@ -203,7 +243,12 @@ class MainWindow(QMainWindow):
         self.content_stack.addWidget(functions_tab)
         self.content_stack.addWidget(config_tab)
         voice_recording_tab = VoiceRecordingTab()
-        telegram_tab = TelegramTab(self.telegram_adapter)
+        if self.telegram_adapter:
+            telegram_tab = TelegramTab(self.telegram_adapter)
+        else:
+            telegram_tab = QWidget()  # Placeholder widget
+            telegram_tab.setLayout(QVBoxLayout())
+            telegram_tab.layout().addWidget(QLabel("Telegram functionality is unavailable"))
         github_tab = GitHubTab(self.config_manager)
 
         self.content_stack.addWidget(voice_recording_tab)
@@ -329,13 +374,14 @@ def exception_hook(exctype, value, traceback):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     
-    # Apply styles after creating the QApplication instance
-    apply_styles(app)
-    
-    config_manager = ConfigManager("KaasQt/config.json")
-    excel_manager = ExcelManager(config_manager.get_config())
-    
-    window = MainWindow(config_manager, excel_manager)
-    window.show()
-    
-    sys.exit(app.exec())
+    try:
+        # Apply styles after creating the QApplication instance
+        apply_styles(app)
+        
+        window = MainWindow()
+        window.show()
+        
+        sys.exit(app.exec())
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        sys.exit(1)
