@@ -10,8 +10,8 @@ from PyQt6.QtGui import QAction, QKeySequence, QShortcut, QFont
 from config_manager import ConfigManager
 from excel_manager import ExcelManager
 from ui_components import ExcelViewerTab, ConfigTab, FunctionsTab, FreedomFutureTab, apply_styles, TelegramTab, GitHubTab
-from audio_adapter import AudioRecorder
-from TelegramAdapter import TelegramAdapter
+from KaasQt.Kaasu.audio_adapter import AudioRecorder
+from KaasQt.Khaas.TelegramAdapter import TelegramAdapter
 
 class RecordingThread(QThread):
     finished = pyqtSignal()

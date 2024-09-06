@@ -15,7 +15,7 @@ session_name.session-journal
 kaas.env
 *.db
 *.csv
-*.json
+KaasQt/config.json
 *.log
 *.xlsx
 *.DS_Store

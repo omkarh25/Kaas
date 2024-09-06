@@ -1,0 +1,19 @@
+{
+    "excel_file": "Kaas.xlsx",
+    "sheet_name": "FreedomBlast(Future)",
+    "markdown_file": "02-Sep-24.md",
+    "api_id": "",
+    "api_hash": "",
+    "phone_number": "",
+    "channel_id": "",
+    "thread_id": "345",
+    "github_token": "",
+    "github_repo": "Serendipity2-0/TradeManV1",
+    "enabled_features": {
+        "excel_viewer": true,
+        "functions": true,
+        "voice_recording": true,
+        "telegram": true,
+        "github": true
+    }
+}
