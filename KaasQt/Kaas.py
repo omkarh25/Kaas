@@ -3,7 +3,7 @@ import traceback
 import logging
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QPushButton, QStackedWidget, QComboBox, QLabel, QSpacerItem, QSizePolicy, QTextEdit
+    QPushButton, QStackedWidget, QComboBox, QLabel, QSpacerItem, QSizePolicy, QTextEdit, QCheckBox, QMessageBox
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QAction, QKeySequence, QShortcut, QFont
@@ -177,22 +177,32 @@ class MainWindow(QMainWindow):
         # Excel Viewer
         excel_viewer = QWidget()
         excel_layout = QVBoxLayout(excel_viewer)
-        excel_tabs = QStackedWidget()
+        
+        # Create a single dropdown for all sheets including Dashboard
+        self.excel_tab_selector = QComboBox()
+        self.excel_tab_selector.addItem("Dashboard")
+        self.excel_tab_selector.addItems(["Tasks", "Accounts(Present)", "Transactions(Past)", "Freedom(Future)", "Category", "Index"])
+        self.excel_tab_selector.currentIndexChanged.connect(self.on_tab_changed)
+        excel_layout.addWidget(self.excel_tab_selector)
 
-        # Add tabs for Excel Viewer
-        excel_tabs.addWidget(self.create_tab("Tasks"))
-        excel_tabs.addWidget(self.create_tab("Accounts(Present)"))
-        excel_tabs.addWidget(self.create_tab("Transactions(Past)"))
-        excel_tabs.addWidget(FreedomFutureTab(self.excel_manager))
-        excel_tabs.addWidget(self.create_category_tab())
-        excel_tabs.addWidget(self.create_index_tab())
+        # Create stacked widget for all content
+        self.excel_stacked_widget = QStackedWidget()
 
-        excel_tab_selector = QComboBox()
-        excel_tab_selector.addItems(["Tasks", "Accounts(Present)", "Transactions(Past)", "Freedom(Future)", "Category", "Index"])
-        excel_tab_selector.currentIndexChanged.connect(excel_tabs.setCurrentIndex)
+        # Add dashboard widget
+        self.dashboard_widget = QWidget()
+        self.dashboard_layout = QVBoxLayout()
+        self.dashboard_widget.setLayout(self.dashboard_layout)
+        self.excel_stacked_widget.addWidget(self.dashboard_widget)
 
-        excel_layout.addWidget(excel_tab_selector)
-        excel_layout.addWidget(excel_tabs)
+        # Add other tabs
+        self.excel_stacked_widget.addWidget(self.create_tab("Tasks"))
+        self.excel_stacked_widget.addWidget(self.create_tab("Accounts(Present)"))
+        self.excel_stacked_widget.addWidget(self.create_tab("Transactions(Past)"))
+        self.excel_stacked_widget.addWidget(FreedomFutureTab(self.excel_manager))
+        self.excel_stacked_widget.addWidget(self.create_category_tab())
+        self.excel_stacked_widget.addWidget(self.create_index_tab())
+
+        excel_layout.addWidget(self.excel_stacked_widget)
 
         # Functions and Config tabs
         functions_tab = FunctionsTab(self.config_manager, self.excel_manager)
@@ -300,10 +310,7 @@ class MainWindow(QMainWindow):
             self.content_stack.setCurrentWidget(github_tab)
 
     def set_excel_tab(self, index):
-        excel_viewer = self.content_stack.widget(0)
-        excel_tabs = excel_viewer.findChild(QStackedWidget)
-        if excel_tabs:
-            excel_tabs.setCurrentIndex(index)
+        self.excel_tab_selector.setCurrentIndex(index)
 
     def toggle_fullscreen(self):
         if self.isFullScreen():
@@ -319,6 +326,75 @@ class MainWindow(QMainWindow):
         exit_action.setShortcut("Ctrl+Q")
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
+
+    def on_tab_changed(self, index):
+        if index == 0:  # Dashboard
+            self.update_dashboard()
+        self.excel_stacked_widget.setCurrentIndex(index)
+
+    def update_dashboard(self):
+        # Clear existing items
+        for i in reversed(range(self.dashboard_layout.count())): 
+            self.dashboard_layout.itemAt(i).widget().setParent(None)
+
+        dashboard_data = self.excel_manager.get_dashboard_data()
+
+        for section, title in [("today", "Today's Payments"), ("past_due", "Past Due Payments"), ("upcoming", "Upcoming Week's Payments")]:
+            section_widget = QWidget()
+            section_layout = QVBoxLayout()
+            section_widget.setLayout(section_layout)
+
+            section_label = QLabel(title)
+            section_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+            section_layout.addWidget(section_label)
+
+            for item in dashboard_data[section]:
+                checkbox = QCheckBox(f"{item['Description']} - {item['Amount']}")
+                checkbox.setStyleSheet("margin-left: 20px;")
+                section_layout.addWidget(checkbox)
+
+            self.dashboard_layout.addWidget(section_widget)
+
+        process_button = QPushButton("Process Selected Transactions")
+        process_button.clicked.connect(self.process_selected_transactions)
+        self.dashboard_layout.addWidget(process_button)
+
+    def process_selected_transactions(self):
+        selected_rows = []
+        for i in range(self.dashboard_layout.count() - 1):  # Exclude the button
+            section_widget = self.dashboard_layout.itemAt(i).widget()
+            section_layout = section_widget.layout()
+            for j in range(1, section_layout.count()):  # Start from 1 to skip the label
+                checkbox = section_layout.itemAt(j).widget()
+                if checkbox.isChecked():
+                    try:
+                        # Split the text and get the last part as amount
+                        parts = checkbox.text().split(" - ")
+                        description = " - ".join(parts[:-1])  # Join all parts except the last one
+                        amount = float(parts[-1].replace(',', ''))  # Remove commas and convert to float
+                        
+                        future_sheet = self.excel_manager.get_sheet_data('Freedom(Future)')
+                        row_indices = future_sheet[(future_sheet['Description'] == description) & 
+                                                   (future_sheet['Amount'] == amount)].index
+                        
+                        if len(row_indices) > 0:
+                            row_index = row_indices[0]
+                            selected_rows.append(row_index)
+                        else:
+                            print(f"Warning: No matching row found for {description} - {amount}")
+                    except Exception as e:
+                        print(f"Error processing checkbox: {checkbox.text()}")
+                        print(f"Error details: {str(e)}")
+
+        if selected_rows:
+            try:
+                self.excel_manager.process_transactions(selected_rows)
+                self.update_dashboard()
+                QMessageBox.information(self, "Success", "Selected transactions processed successfully!")
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Failed to process transactions: {str(e)}")
+        else:
+            QMessageBox.warning(self, "No Selection", "Please select at least one valid transaction to process.")
 
 def exception_hook(exctype, value, traceback):
     print(f"Uncaught exception: {exctype}, {value}")

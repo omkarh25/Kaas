@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 class ExcelManager:
@@ -143,3 +143,27 @@ class ExcelManager:
 
         print("Transaction added successfully")
         self.refresh_all_sheets()
+
+    def get_dashboard_data(self):
+        future_sheet = self.sheets['Freedom(Future)']
+        today = datetime.now().date()
+        one_week_later = today + timedelta(days=7)
+
+        today_payments = []
+        past_due_payments = []
+        upcoming_payments = []
+
+        for _, row in future_sheet.iterrows():
+            payment_date = pd.to_datetime(row['Date']).date()
+            if payment_date == today:
+                today_payments.append(row)
+            elif payment_date < today:
+                past_due_payments.append(row)
+            elif today < payment_date <= one_week_later:
+                upcoming_payments.append(row)
+
+        return {
+            "today": today_payments,
+            "past_due": past_due_payments,
+            "upcoming": upcoming_payments
+        }
