@@ -11,63 +11,34 @@ from PyQt6.QtMultimedia import QSoundEffect, QMediaPlayer
 from PyQt6.QtMultimediaWidgets import QVideoWidget
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest
 import json
-from github_manager import GitHubManager
 
 def apply_styles(app):
-    app.setStyle(QStyleFactory.create('Fusion'))
-    custom_font = QFont("Roboto", 10)
-    app.setFont(custom_font)
-
-    palette = QPalette()
-    palette.setColor(QPalette.ColorRole.Window, QColor(240, 240, 240))
-    palette.setColor(QPalette.ColorRole.WindowText, QColor(50, 50, 50))
-    palette.setColor(QPalette.ColorRole.Base, QColor(255, 255, 255))
-    palette.setColor(QPalette.ColorRole.AlternateBase, QColor(245, 245, 245))
-    palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(255, 255, 220))
-    palette.setColor(QPalette.ColorRole.ToolTipText, QColor(0, 0, 0))
-    palette.setColor(QPalette.ColorRole.Text, QColor(50, 50, 50))
-    palette.setColor(QPalette.ColorRole.Button, QColor(240, 240, 240))
-    palette.setColor(QPalette.ColorRole.ButtonText, QColor(50, 50, 50))
-    palette.setColor(QPalette.ColorRole.BrightText, QColor(255, 255, 255))
-    palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
-    palette.setColor(QPalette.ColorRole.Highlight, QColor(255, 215, 0))
-    palette.setColor(QPalette.ColorRole.HighlightedText, QColor(0, 0, 0))
-
-    app.setPalette(palette)
-
-    # CSS Styling
     app.setStyleSheet("""
         QWidget {
-            font-family: 'Roboto';
+            font-family: Arial, sans-serif;
+            font-size: 14px;
         }
         QPushButton {
-            background-color: #D4AF37;
-            color: #333333;
+            background-color: #4CAF50;
+            color: white;
             border: none;
             padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            margin: 4px 2px;
             border-radius: 4px;
-            font-weight: bold;
         }
         QPushButton:hover {
-            background-color: #F4C430;
+            background-color: #45a049;
         }
-        QPushButton:pressed {
-            background-color: #B8860B;
+        QLineEdit, QTextEdit, QComboBox {
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 3px;
         }
-        QLineEdit, QComboBox, QDateEdit, QDoubleSpinBox {
-            padding: 6px;
-            border: 1px solid #CCCCCC;
-            border-radius: 4px;
-        }
-        QTableView {
-            border: 1px solid #CCCCCC;
-            gridline-color: #E0E0E0;
-        }
-        QHeaderView::section {
-            background-color: #F0F0F0;
-            padding: 4px;
-            border: 1px solid #CCCCCC;
-            font-weight: bold;
+        QLabel {
+            color: #333;
         }
     """)
 
@@ -384,39 +355,6 @@ class ConfigTab(QWidget):
         QMessageBox.information(self, "Success", "Configuration saved successfully!")
         self.play_sound("save_config.wav")
 
-    def play_sound(self, sound_file):
-        effect = QSoundEffect()
-        effect.setSource(QUrl.fromLocalFile(sound_file))
-        effect.play()
-
-class FunctionsTab(QWidget):
-    def __init__(self, config_manager, excel_manager):
-        super().__init__()
-        self.config_manager = config_manager
-        self.excel_manager = excel_manager
-        self.init_ui()
-
-    def init_ui(self):
-        layout = QVBoxLayout()
-        layout.setSpacing(20)
-        layout.setContentsMargins(20, 20, 20, 20)
-
-        # Add function buttons here
-        process_button = QPushButton("Process Transactions")
-        process_button.clicked.connect(self.process_transactions)
-        layout.addWidget(process_button)
-
-        self.setLayout(layout)
-
-    def process_transactions(self):
-        freedom_future_tab = FreedomFutureTab(self.excel_manager)
-        freedom_future_tab.process_transactions()
-        self.play_sound("process_transactions.wav")
-
-    def play_sound(self, sound_file):
-        effect = QSoundEffect()
-        effect.setSource(QUrl.fromLocalFile(sound_file))
-        effect.play()
 
 class FreedomFutureTab(QWidget):
     def __init__(self, excel_manager):
@@ -486,293 +424,3 @@ class FreedomFutureTab(QWidget):
         else:
             QMessageBox.warning(self, "Warning", "No transactions selected for processing.")
 
-class TelegramTab(QWidget):
-    def __init__(self, telegram_adapter):
-        super().__init__()
-        self.telegram_adapter = telegram_adapter
-        self.init_ui()
-
-    def init_ui(self):
-        layout = QVBoxLayout()
-        layout.setSpacing(20)
-        layout.setContentsMargins(20, 20, 20, 20)
-
-        # Channel selection
-        self.channel_combo = QComboBox()
-        self.channel_combo.addItem("Select a channel", None)
-        self.channel_combo.currentIndexChanged.connect(self.on_channel_changed)
-        layout.addWidget(self.channel_combo)
-
-        # Chat display area
-        self.chat_display = QTextEdit()
-        self.chat_display.setReadOnly(True)
-        layout.addWidget(self.chat_display)
-
-        # Message input area
-        input_layout = QHBoxLayout()
-        self.message_input = QLineEdit()
-        self.send_button = QPushButton("Send")
-        self.send_button.clicked.connect(self.send_message)
-        input_layout.addWidget(self.message_input)
-        input_layout.addWidget(self.send_button)
-        layout.addLayout(input_layout)
-
-        self.setLayout(layout)
-
-        # Set up a timer to periodically fetch new messages
-        self.update_timer = QTimer(self)
-        self.update_timer.timeout.connect(self.fetch_new_messages)
-        self.update_timer.start(5000)  # Fetch every 5 seconds
-
-        # Populate channel list
-        self.populate_channels()
-
-    def populate_channels(self):
-        channels = self.telegram_adapter.get_dialogs()
-        for channel_id, channel_name in channels:
-            self.channel_combo.addItem(channel_name, channel_id)
-
-    def on_channel_changed(self, index):
-        channel_id = self.channel_combo.itemData(index)
-        if channel_id:
-            self.show_loading_dialog("Switching channel...")
-            self.telegram_adapter.set_channel(channel_id)
-            self.fetch_new_messages()
-        else:
-            self.chat_display.clear()
-
-    def send_message(self):
-        message = self.message_input.text()
-        if message:
-            try:
-                self.show_loading_dialog("Sending message...")
-                self.telegram_adapter.send_message(message)
-                self.message_input.clear()
-                self.fetch_new_messages()
-            except ValueError as e:
-                QMessageBox.warning(self, "Error", str(e))
-
-    def fetch_new_messages(self):
-        # self.show_loading_dialog("Fetching messages...")
-        messages = self.telegram_adapter.get_messages()
-        self.display_messages(messages)
-
-    def display_messages(self, messages):
-        self.chat_display.clear()
-        for message in messages:
-            self.chat_display.append(f"{message['sender']}: {message['text']}")
-            if message.get('image'):
-                self.display_image(message['image'])
-            if message.get('audio'):
-                self.display_audio(message['audio'])
-            if message.get('link'):
-                self.display_link(message['link'])
-            self.chat_display.append("")
-
-    def display_image(self, image_url):
-        pixmap = QPixmap()
-        pixmap.loadFromData(self.download_file(image_url))
-        self.chat_display.textCursor().insertImage(pixmap.toImage())
-
-    def display_audio(self, audio_url):
-        audio_player = QMediaPlayer()
-        audio_player.setSource(audio_url)
-        audio_widget = QVideoWidget()
-        audio_player.setVideoOutput(audio_widget)
-        self.chat_display.textCursor().insertHtml(f'<audio controls><source src="{audio_url}" type="audio/mpeg"></audio>')
-
-    def display_link(self, link):
-        self.chat_display.append(f'<a href="{link}">{link}</a>')
-
-    def download_file(self, url):
-        network_manager = QNetworkAccessManager()
-        request = QNetworkRequest(url)
-        reply = network_manager.get(request)
-        loop = QEventLoop()
-        reply.finished.connect(loop.quit)
-        loop.exec()
-        return reply.readAll()
-
-    def show_loading_dialog(self, message="Loading...", duration=1000):
-        self.progress_dialog = QProgressDialog(message, None, 0, 0, self)
-        self.progress_dialog.setWindowTitle("Please Wait")
-        self.progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
-        self.progress_dialog.setMinimumDuration(0)
-        self.progress_dialog.setCancelButton(None)
-        self.progress_dialog.show()
-        
-        QTimer.singleShot(duration, self.progress_dialog.close)
-
-class GitHubTab(QWidget):
-    def __init__(self, config_manager):
-        super().__init__()
-        self.config_manager = config_manager
-        self.github_manager = None
-        self.init_ui()
-
-    def init_ui(self):
-        layout = QHBoxLayout()
-        layout.setSpacing(20)
-        layout.setContentsMargins(20, 20, 20, 20)
-
-        # Left side: Issue list and filters
-        left_layout = QVBoxLayout()
-        
-        # Filters
-        filter_layout = QHBoxLayout()
-        self.state_filter = QComboBox()
-        self.state_filter.addItems(["All", "Open", "Closed"])
-        self.state_filter.currentTextChanged.connect(self.refresh_issues)
-        filter_layout.addWidget(QLabel("State:"))
-        filter_layout.addWidget(self.state_filter)
-        
-        self.label_filter = QComboBox()
-        self.label_filter.addItem("All Labels")
-        self.label_filter.currentTextChanged.connect(self.refresh_issues)
-        filter_layout.addWidget(QLabel("Label:"))
-        filter_layout.addWidget(self.label_filter)
-        
-        left_layout.addLayout(filter_layout)
-
-        # Issue tree
-        self.issue_tree = QTreeWidget()
-        self.issue_tree.setHeaderLabels(["#", "Title", "State", "Assignees", "Labels"])
-        self.issue_tree.setColumnCount(5)
-        self.issue_tree.itemClicked.connect(self.show_issue_details)
-        left_layout.addWidget(self.issue_tree)
-
-        # Refresh button
-        refresh_button = QPushButton("Refresh Issues")
-        refresh_button.clicked.connect(self.refresh_issues)
-        left_layout.addWidget(refresh_button)
-
-        # Right side: Issue details and creation
-        right_layout = QVBoxLayout()
-
-        # Issue details
-        self.issue_details = QTextEdit()
-        self.issue_details.setReadOnly(True)
-        right_layout.addWidget(QLabel("Issue Details:"))
-        right_layout.addWidget(self.issue_details)
-
-        # New issue form
-        right_layout.addWidget(QLabel("Create New Issue:"))
-        form_layout = QFormLayout()
-        self.issue_title = QLineEdit()
-        self.issue_body = QTextEdit()
-        form_layout.addRow("Title:", self.issue_title)
-        form_layout.addRow("Body:", self.issue_body)
-        right_layout.addLayout(form_layout)
-
-        # Create issue button
-        create_button = QPushButton("Create Issue")
-        create_button.clicked.connect(self.create_issue)
-        right_layout.addWidget(create_button)
-
-        # Add layouts to splitter
-        splitter = QSplitter(Qt.Orientation.Horizontal)
-        left_widget = QWidget()
-        left_widget.setLayout(left_layout)
-        right_widget = QWidget()
-        right_widget.setLayout(right_layout)
-        splitter.addWidget(left_widget)
-        splitter.addWidget(right_widget)
-        layout.addWidget(splitter)
-
-        self.setLayout(layout)
-
-    def showEvent(self, event):
-        super().showEvent(event)
-        self.show_loading_dialog("Initializing GitHub connection...")
-        self.initialize_github_manager()
-        self.refresh_issues()
-
-    def initialize_github_manager(self):
-        config = self.config_manager.get_config()
-        token = config.get("github_token")
-        repo = config.get("github_repo")
-        if token and repo:
-            self.github_manager = GitHubManager(token, repo)
-            self.populate_labels()
-        else:
-            QMessageBox.warning(self, "Configuration Error", "GitHub token or repository not set. Please check your configuration.")
-
-    def populate_labels(self):
-        if not self.github_manager:
-            return
-        labels = self.github_manager.get_labels()
-        self.label_filter.clear()
-        self.label_filter.addItem("All Labels")
-        for label in labels:
-            self.label_filter.addItem(label.name)
-
-    def refresh_issues(self):
-        self.show_loading_dialog("Fetching issues...")
-        if not self.github_manager:
-            return
-        self.issue_tree.clear()
-        state = self.state_filter.currentText().lower()
-        if state == "all":
-            state = "all"
-        label = self.label_filter.currentText()
-        if label == "All Labels":
-            label = None
-        try:
-            issues = self.github_manager.get_issues(state=state, labels=[label] if label else None)
-            for issue in issues:
-                item = QTreeWidgetItem(self.issue_tree)
-                item.setText(0, f"#{issue.number}")
-                item.setText(1, issue.title)
-                item.setText(2, issue.state)
-                item.setText(3, ", ".join([assignee.login for assignee in issue.assignees]))
-                item.setText(4, ", ".join([label.name for label in issue.labels]))
-                item.setData(0, Qt.ItemDataRole.UserRole, issue)
-            self.issue_tree.resizeColumnToContents(0)
-            self.issue_tree.resizeColumnToContents(2)
-            self.issue_tree.resizeColumnToContents(3)
-            self.issue_tree.resizeColumnToContents(4)
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to fetch issues: {str(e)}")
-
-    def show_issue_details(self, item, column):
-        issue = item.data(0, Qt.ItemDataRole.UserRole)
-        details = f"Title: {issue.title}\n\n"
-        details += f"State: {issue.state}\n"
-        details += f"Created by: {issue.user.login}\n"
-        details += f"Created at: {issue.created_at}\n"
-        details += f"Last updated: {issue.updated_at}\n"
-        details += f"Assignees: {', '.join([assignee.login for assignee in issue.assignees])}\n"
-        details += f"Labels: {', '.join([label.name for label in issue.labels])}\n\n"
-        details += f"Description:\n{issue.body}\n\n"
-        details += f"Comments:\n"
-        for comment in issue.get_comments():
-            details += f"- {comment.user.login}: {comment.body}\n"
-        self.issue_details.setPlainText(details)
-
-    def create_issue(self):
-        self.show_loading_dialog("Creating issue...")
-        if not self.github_manager:
-            return
-        title = self.issue_title.text()
-        body = self.issue_body.toPlainText()
-        if title:
-            try:
-                issue = self.github_manager.create_issue(title, body)
-                self.issue_title.clear()
-                self.issue_body.clear()
-                self.refresh_issues()
-                QMessageBox.information(self, "Success", f"Issue #{issue.number} created successfully!")
-            except Exception as e:
-                QMessageBox.critical(self, "Error", f"Failed to create issue: {str(e)}")
-        else:
-            QMessageBox.warning(self, "Invalid Input", "Please enter an issue title.")
-
-    def show_loading_dialog(self, message="Loading...", duration=1000):
-        self.progress_dialog = QProgressDialog(message, None, 0, 0, self)
-        self.progress_dialog.setWindowTitle("Please Wait")
-        self.progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
-        self.progress_dialog.setMinimumDuration(0)
-        self.progress_dialog.setCancelButton(None)
-        self.progress_dialog.show()
-        
-        QTimer.singleShot(duration, self.progress_dialog.close)
