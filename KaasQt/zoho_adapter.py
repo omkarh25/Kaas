@@ -1,6 +1,7 @@
 from pyzohoapi import ZohoBooks
 from pyzohoapi.exceptions import ZohoUnauthorized
 import time
+import requests
 
 class ZohoBooksIntegration:
     def __init__(self, organization_id, region, client_id, client_secret, refresh_token):
@@ -53,35 +54,80 @@ class ZohoBooksIntegration:
     def delete_invoice(self, invoice_id):
         return self._handle_unauthorized(lambda: self.api.Invoice(invoice_id).Delete())
 
+    def get_transactions_list(self, organization_id, account_id, oauth_token):
+        url = "https://www.zohoapis.com/books/v3/banktransactions"
+        
+        headers = {
+            "Authorization": f"Zoho-oauthtoken {oauth_token}",
+            "Content-Type": "application/json"
+        }
+        
+        params = {
+            "organization_id": organization_id,
+            "account_id": account_id
+        }
+        
+        response = requests.get(url, headers=headers, params=params)
+        
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return f"Error: {response.status_code}, {response.text}"
+
+    def list_chart_of_accounts(self, showbalance=False, filter_by=None, sort_column=None, last_modified_time=None):
+        """
+        List all chart of accounts along with pagination.
+
+        Args:
+            showbalance (bool): Boolean to get current balance of accounts.
+            filter_by (str): Filter accounts based on its account type and status.
+                Allowed Values: AccountType.All, AccountType.Active, AccountType.Inactive,
+                AccountType.Asset, AccountType.Liability, AccountType.Equity,
+                AccountType.Income, AccountType.Expense.
+            sort_column (str): Sort accounts. Allowed Values: account_name, account_type.
+            last_modified_time (str): Last modified time of the accounts.
+
+        Returns:
+            dict: JSON response containing the list of chart of accounts.
+        """
+        def fetch_accounts():
+            params = {
+                "organization_id": self.organization_id,
+                "showbalance": str(showbalance).lower()
+            }
+            
+            if filter_by:
+                params["filter_by"] = filter_by
+            if sort_column:
+                params["sort_column"] = sort_column
+            if last_modified_time:
+                params["last_modified_time"] = last_modified_time
+
+            return self.api.get("chartofaccounts", **params)
+
+        return self._handle_unauthorized(fetch_accounts)
+
 # Usage example
 if __name__ == "__main__":
     organization_id = "60029851485"
     region = "in"  # or "eu", "in", "au" depending on your Zoho region
-    client_id = "1000.XLGUUGKKJEQXJ9TUD8NFY7STPW96FH"
-    client_secret = "71c30889b94a739457057eee7683f546dc2d3b81a5"
-    refresh_token = "your_refresh_token"
+    client_id = "1000.0SQKHCOMCQOBELBGMDTL9K1904GNIX"
+    client_secret = "883e9bf021e43cb0b4147a2353319f4be8167138e5"
+    refresh_token = "1000.554cea0ad58509632bb0ae2f9e936fc1.6bb39626fed34274defd2d765c183c73"
+    account_id = "60029851485"
 
     zoho_books = ZohoBooksIntegration(organization_id, region, client_id, client_secret, refresh_token)
 
     # Get all invoices
-    invoices = zoho_books.get_invoices()
-    for invoice in invoices:
-        print(f"Invoice ID: {invoice.ID}, Number: {invoice.Number}")
+    # transactions = zoho_books.get_transactions_list(organization_id, account_id, refresh_token)
+    # print(transactions)
 
-    # Create a new invoice
-    new_invoice_data = {
-        "customer_id": "customer_id_here",
-        "line_items": [{"item_id": "item_id_here", "quantity": 1}],
-        # Add other required fields
-    }
-    new_invoice = zoho_books.create_invoice(new_invoice_data)
-    print(f"New invoice created with ID: {new_invoice.ID}")
+    # List all chart of accounts
+    # accounts = zoho_books.list_chart_of_accounts()
+    # for account in accounts:
+    #     print(f"Account Name: {account.account_name}, Account Type: {account.account_type}")
 
-    # Update an invoice
-    update_data = {"status": "sent"}
-    updated_invoice = zoho_books.update_invoice(new_invoice.ID, update_data)
-    print(f"Invoice {updated_invoice.ID} updated")
-
-    # Delete an invoice
-    if zoho_books.delete_invoice(new_invoice.ID).IsDeleted:
-        print(f"Invoice {new_invoice.ID} deleted")
+    # # List chart of accounts with balance and filtered by active accounts
+    # active_accounts = zoho_books.list_chart_of_accounts(showbalance=True, filter_by="AccountType.Active")
+    # for account in active_accounts:
+    #     print(f"Account Name: {account.account_name}, Balance: {account.balance}")
