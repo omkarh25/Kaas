@@ -1,6 +1,7 @@
 from telethon import TelegramClient
 from telethon.tl.types import InputPeerChannel, PeerChannel
 import asyncio
+import time
 
 class TelegramAdapter:
     def __init__(self, api_id, api_hash, phone_number):
@@ -58,3 +59,15 @@ class TelegramAdapter:
 
     def __del__(self):
         self.loop.run_until_complete(self.stop())
+
+    async def poll_messages(self, callback, interval=300):  # 300 seconds = 5 minutes
+        while True:
+            messages = self.get_messages()
+            if messages:
+                callback(messages)
+            await asyncio.sleep(interval)
+
+    def start_polling(self, callback):
+        async def _start_polling():
+            await self.poll_messages(callback)
+        self.loop.create_task(_start_polling())

@@ -550,7 +550,11 @@ class MainWindow(QMainWindow):
         self.update_checklist_dashboard()
         return widget
 
-    def show_loading_dialog(self, message="Loading...", duration=1000):
+    def show_loading_dialog(self, message="Loading...", duration=0):
+        # Disable the loading dialog by setting duration to 0
+        if duration == 0:
+            return
+        
         self.progress_dialog = QProgressDialog(message, None, 0, 0, self)
         self.progress_dialog.setWindowTitle("Please Wait")
         self.progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)

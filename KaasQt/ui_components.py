@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
     QTableView, QComboBox, QMessageBox, QProgressDialog, QFileDialog,
     QHeaderView, QCheckBox, QDateEdit, QDoubleSpinBox, QDialog, QDialogButtonBox, QFormLayout,
     QApplication, QStyleFactory, QTextEdit, QScrollArea, QFrame, QListWidget, QTreeWidget, QTreeWidgetItem,
-    QSplitter
+    QSplitter, QAbstractItemView
 )
 from PyQt6.QtCore import Qt, QAbstractTableModel, QModelIndex, QTimer, QSortFilterProxyModel, QDate, pyqtSignal
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QFont, QPalette, QColor, QPixmap
@@ -104,6 +104,50 @@ class PandasModel(QAbstractTableModel):
         self._data = self._data.sort_values(self._data.columns[column], ascending=(order == Qt.SortOrder.AscendingOrder))
         self.layoutChanged.emit()
 
+class EditablePandasModel(QAbstractTableModel):
+    def __init__(self, data, excel_manager, sheet_name):
+        super().__init__()
+        self._data = data
+        self.excel_manager = excel_manager
+        self.sheet_name = sheet_name
+
+    def rowCount(self, parent=None):
+        return len(self._data)
+
+    def columnCount(self, parent=None):
+        return len(self._data.columns)
+
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
+            value = self._data.iloc[index.row(), index.column()]
+            return str(value)
+        elif role == Qt.ItemDataRole.BackgroundRole:
+            return QColor(Qt.GlobalColor.white)
+        return None
+
+    def headerData(self, section, orientation, role):
+        if role == Qt.ItemDataRole.DisplayRole:
+            if orientation == Qt.Orientation.Horizontal:
+                return str(self._data.columns[section])
+            if orientation == Qt.Orientation.Vertical:
+                return str(self._data.index[section])
+        return None
+
+    def setData(self, index, value, role):
+        if role == Qt.ItemDataRole.EditRole:
+            try:
+                self._data.iloc[index.row(), index.column()] = value
+                self.excel_manager.update_cell(self.sheet_name, index.row(), index.column(), value)
+                self.dataChanged.emit(index, index, [Qt.ItemDataRole.DisplayRole])
+                return True
+            except Exception as e:
+                print(f"Error updating cell: {e}")
+                return False
+        return False
+
+    def flags(self, index):
+        return Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
+
 class ExcelViewerTab(QWidget):
     def __init__(self, config, excel_manager, sheet_name=None):
         super().__init__()
@@ -177,8 +221,9 @@ class ExcelViewerTab(QWidget):
         if sheet_name:
             df = self.excel_manager.get_sheet_data(sheet_name)
             if df is not None:
-                model = PandasModel(df)
+                model = EditablePandasModel(df, self.excel_manager, sheet_name)
                 self.table_view.setModel(model)
+                self.table_view.setEditTriggers(QAbstractItemView.EditTrigger.DoubleClicked | QAbstractItemView.EditTrigger.EditKeyPressed)
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -508,7 +553,7 @@ class TelegramTab(QWidget):
                 QMessageBox.warning(self, "Error", str(e))
 
     def fetch_new_messages(self):
-        self.show_loading_dialog("Fetching messages...")
+        # self.show_loading_dialog("Fetching messages...")
         messages = self.telegram_adapter.get_messages()
         self.display_messages(messages)
 

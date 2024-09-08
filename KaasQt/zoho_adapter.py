@@ -30,32 +30,8 @@ class ZohoBooksIntegration:
             time.sleep(1)  # Wait a bit before retrying
             return func()  # Retry the operation
 
-    def get_invoices(self):
-        return self._handle_unauthorized(lambda: list(self.api.Invoice()))
-
-    def create_invoice(self, invoice_data):
-        def create():
-            invoice = self.api.Invoice()
-            for key, value in invoice_data.items():
-                setattr(invoice, key, value)
-            invoice.Create()
-            return invoice
-        return self._handle_unauthorized(create)
-
-    def update_invoice(self, invoice_id, update_data):
-        def update():
-            invoice = self.api.Invoice(invoice_id)
-            for key, value in update_data.items():
-                setattr(invoice, key, value)
-            invoice.Update()
-            return invoice
-        return self._handle_unauthorized(update)
-
-    def delete_invoice(self, invoice_id):
-        return self._handle_unauthorized(lambda: self.api.Invoice(invoice_id).Delete())
-
     def get_transactions_list(self, organization_id, account_id, oauth_token):
-        url = "https://www.zohoapis.com/books/v3/banktransactions"
+        url = "https://www.zohoapis.com/books/v2/banktransactions"
         
         headers = {
             "Authorization": f"Zoho-oauthtoken {oauth_token}",
@@ -91,19 +67,19 @@ class ZohoBooksIntegration:
             dict: JSON response containing the list of chart of accounts.
         """
         def fetch_accounts():
-            params = {
-                "organization_id": self.organization_id,
-                "showbalance": str(showbalance).lower()
-            }
+            query_params = []
             
+            if showbalance:
+                query_params.append("showbalance=true")
             if filter_by:
-                params["filter_by"] = filter_by
+                query_params.append(f"filter_by={filter_by}")
             if sort_column:
-                params["sort_column"] = sort_column
+                query_params.append(f"sort_column={sort_column}")
             if last_modified_time:
-                params["last_modified_time"] = last_modified_time
+                query_params.append(f"last_modified_time={last_modified_time}")
 
-            return self.api.get("chartofaccounts", **params)
+            query_string = "&".join(query_params)
+            return self.api.get("chartofaccounts", query_string)
 
         return self._handle_unauthorized(fetch_accounts)
 
@@ -113,21 +89,16 @@ if __name__ == "__main__":
     region = "in"  # or "eu", "in", "au" depending on your Zoho region
     client_id = "1000.0SQKHCOMCQOBELBGMDTL9K1904GNIX"
     client_secret = "883e9bf021e43cb0b4147a2353319f4be8167138e5"
-    refresh_token = "1000.554cea0ad58509632bb0ae2f9e936fc1.6bb39626fed34274defd2d765c183c73"
+    refresh_token = "1000.771feed74357afe2ccade1a93468f5e3.4e9988a9b75ff6d743b294cfe80ee43a"
     account_id = "60029851485"
 
     zoho_books = ZohoBooksIntegration(organization_id, region, client_id, client_secret, refresh_token)
 
-    # Get all invoices
-    # transactions = zoho_books.get_transactions_list(organization_id, account_id, refresh_token)
-    # print(transactions)
 
     # List all chart of accounts
-    # accounts = zoho_books.list_chart_of_accounts()
-    # for account in accounts:
-    #     print(f"Account Name: {account.account_name}, Account Type: {account.account_type}")
+    accounts = zoho_books.list_chart_of_accounts()
+    print(accounts)
 
-    # # List chart of accounts with balance and filtered by active accounts
-    # active_accounts = zoho_books.list_chart_of_accounts(showbalance=True, filter_by="AccountType.Active")
-    # for account in active_accounts:
-    #     print(f"Account Name: {account.account_name}, Balance: {account.balance}")
+    # List chart of accounts with balance and filtered by active accounts
+    active_accounts = zoho_books.list_chart_of_accounts(showbalance=True, filter_by="AccountType.Active")
+    print(active_accounts)

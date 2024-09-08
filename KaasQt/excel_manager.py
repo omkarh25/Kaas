@@ -171,3 +171,28 @@ class ExcelManager:
     def get_total_expense(self):
         accounts_sheet = self.get_sheet_data('Accounts(Present)')
         return accounts_sheet['CurrentBalance'].sum()
+
+    def add_future_transaction(self, new_transaction):
+        future_sheet = self.sheets['Freedom(Future)']
+        future_sheet = future_sheet.append(new_transaction, ignore_index=True)
+        self.sheets['Freedom(Future)'] = future_sheet
+
+        # Save changes to Excel file
+        with pd.ExcelWriter(self.config['excel_file'], engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+            future_sheet.to_excel(writer, sheet_name='Freedom(Future)', index=False)
+
+        print("Future transaction added successfully")
+        self.refresh_all_sheets()
+
+    def update_cell(self, sheet_name, row, column, value):
+        if sheet_name in self.sheets:
+            self.sheets[sheet_name].iloc[row, column] = value
+            self.save_changes()
+        else:
+            raise ValueError(f"Sheet '{sheet_name}' not found")
+
+    def save_changes(self):
+        with pd.ExcelWriter(self.config['excel_file'], engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+            for sheet_name, sheet_data in self.sheets.items():
+                sheet_data.to_excel(writer, sheet_name=sheet_name, index=False)
+        self.refresh_all_sheets()
