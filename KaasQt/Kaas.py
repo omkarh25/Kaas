@@ -11,9 +11,8 @@ from PyQt6.QtGui import QAction, QKeySequence, QShortcut, QFont, QColor
 from datetime import datetime, timedelta
 from config_manager import ConfigManager
 from excel_manager import ExcelManager
-from ui_components import ExcelViewerTab, ConfigTab, FunctionsTab, FreedomFutureTab, apply_styles, TelegramTab, GitHubTab
-from audio_adapter import AudioRecorder
-from TelegramAdapter import TelegramAdapter
+from ui_components import ExcelViewerTab, ConfigTab, FreedomFutureTab, apply_styles
+
 
 class RecordingThread(QThread):
     finished = pyqtSignal()
@@ -30,119 +29,12 @@ class RecordingThread(QThread):
         except Exception as e:
             self.error.emit(str(e))
 
-class VoiceRecordingTab(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.audio_recorder = AudioRecorder()
-        self.recording_thread = None
-        self.cleanup_timer = QTimer(self)
-        self.cleanup_timer.timeout.connect(self.cleanup_recording)
-        self.init_ui()
-
-    def init_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        # Title
-        title_label = QLabel("Voice Recording")
-        title_label.setFont(QFont("Arial", 18, QFont.Weight.Bold))
-        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title_label)
-
-        # Spacer
-        layout.addItem(QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
-
-        # Status label
-        self.status_label = QLabel("Ready to record")
-        self.status_label.setFont(QFont("Arial", 14))
-        self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.status_label)
-
-        # Record button
-        self.record_button = QPushButton("Start Recording")
-        self.record_button.setFont(QFont("Arial", 14))
-        self.record_button.setFixedSize(200, 50)
-        self.record_button.clicked.connect(self.toggle_recording)
-        layout.addWidget(self.record_button, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        # Error log
-        self.error_log = QTextEdit()
-        self.error_log.setReadOnly(True)
-        self.error_log.setMaximumHeight(100)
-        layout.addWidget(self.error_log)
-
-        # Spacer
-        layout.addItem(QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
-
-    def toggle_recording(self):
-        if not self.audio_recorder.is_recording:
-            self.start_recording()
-        else:
-            self.stop_recording()
-
-    def start_recording(self):
-        try:
-            self.audio_recorder.start_recording()
-            self.recording_thread = RecordingThread(self.audio_recorder)
-            self.recording_thread.finished.connect(self.on_recording_finished)
-            self.recording_thread.error.connect(self.on_recording_error)
-            self.recording_thread.start()
-            self.status_label.setText("Recording...")
-            self.record_button.setText("Stop Recording")
-        except Exception as e:
-            self.on_recording_error(str(e))
-
-    def stop_recording(self):
-        if self.recording_thread and self.recording_thread.isRunning():
-            self.audio_recorder.stop_recording()
-            self.cleanup_timer.start(100)  # Start cleanup timer
-        else:
-            self.on_recording_finished()
-
-    def cleanup_recording(self):
-        if self.recording_thread and self.recording_thread.isFinished():
-            self.recording_thread.wait()
-            self.recording_thread = None
-            self.cleanup_timer.stop()
-            self.on_recording_finished()
-        elif self.recording_thread and self.recording_thread.isRunning():
-            logging.warning("Recording thread is still running. Waiting...")
-        else:
-            self.cleanup_timer.stop()
-            self.on_recording_finished()
-
-    def on_recording_finished(self):
-        self.status_label.setText("Recording saved")
-        self.record_button.setText("Start Recording")
-        self.audio_recorder.is_recording = False
-        logging.info("Recording finished and saved successfully")
-
-    def on_recording_error(self, error_message):
-        self.status_label.setText("Error occurred")
-        self.record_button.setText("Start Recording")
-        self.audio_recorder.is_recording = False
-        self.error_log.append(f"Error: {error_message}")
-        self.error_log.append(f"Traceback: {traceback.format_exc()}")
-        logging.error(f"Recording error: {error_message}")
-
-    def closeEvent(self, event):
-        if self.audio_recorder.is_recording:
-            self.stop_recording()
-        if self.recording_thread and self.recording_thread.isRunning():
-            self.recording_thread.quit()
-            self.recording_thread.wait()
-        super().closeEvent(event)
 
 class MainWindow(QMainWindow):
     def __init__(self, config_manager, excel_manager):
         super().__init__()
         self.config_manager = config_manager
         self.excel_manager = excel_manager
-        self.telegram_adapter = TelegramAdapter(
-            self.config_manager.get_config()['api_id'],
-            self.config_manager.get_config()['api_hash'],
-            self.config_manager.get_config()['phone_number']
-        )
         self.init_ui()
         self.create_shortcuts()
         self.showFullScreen()
@@ -159,18 +51,11 @@ class MainWindow(QMainWindow):
         sidebar.setFixedWidth(200)
 
         excel_viewer_btn = QPushButton("Excel Viewer")
-        functions_btn = QPushButton("Functions")
         config_btn = QPushButton("Configuration")
-        voice_recording_btn = QPushButton("Voice Recording")
-        telegram_btn = QPushButton("Telegram")
-        github_btn = QPushButton("GitHub")
-
+        
         sidebar_layout.addWidget(excel_viewer_btn)
-        sidebar_layout.addWidget(functions_btn)
         sidebar_layout.addWidget(config_btn)
-        sidebar_layout.addWidget(voice_recording_btn)
-        sidebar_layout.addWidget(telegram_btn)
-        sidebar_layout.addWidget(github_btn)
+        
         sidebar_layout.addStretch()
 
         # Main content area
@@ -209,30 +94,14 @@ class MainWindow(QMainWindow):
 
         excel_layout.addWidget(self.excel_stacked_widget)
 
-        # Functions and Config tabs
-        functions_tab = FunctionsTab(self.config_manager, self.excel_manager)
-        config_tab = ConfigTab(self.config_manager)
 
         # Add widgets to content stack
         self.content_stack.addWidget(excel_viewer)
-        self.content_stack.addWidget(functions_tab)
-        self.content_stack.addWidget(config_tab)
-        voice_recording_tab = VoiceRecordingTab()
-        telegram_tab = TelegramTab(self.telegram_adapter)
-        github_tab = GitHubTab(self.config_manager)
-
-        self.content_stack.addWidget(voice_recording_tab)
-        self.content_stack.addWidget(telegram_tab)
-        self.content_stack.addWidget(github_tab)
-
+        
         # Connect sidebar buttons
         excel_viewer_btn.clicked.connect(lambda: self.content_stack.setCurrentIndex(0))
-        functions_btn.clicked.connect(lambda: self.content_stack.setCurrentIndex(1))
         config_btn.clicked.connect(lambda: self.content_stack.setCurrentIndex(2))
-        voice_recording_btn.clicked.connect(lambda: self.content_stack.setCurrentIndex(3))
-        telegram_btn.clicked.connect(lambda: self.content_stack.setCurrentWidget(telegram_tab))
-        github_btn.clicked.connect(lambda: self.content_stack.setCurrentWidget(github_tab))
-
+        
         main_layout.addWidget(sidebar)
         main_layout.addWidget(self.content_stack, 1)
 
@@ -266,7 +135,6 @@ class MainWindow(QMainWindow):
     def create_shortcuts(self):
         # Sidebar navigation shortcuts
         self.create_shortcut("Ctrl+E", self.show_excel_viewer, "Show Excel Viewer")
-        self.create_shortcut("Ctrl+F", self.show_functions, "Show Functions")
         self.create_shortcut("Ctrl+G", self.show_config, "Show Configuration")
 
         # Excel tab navigation shortcuts
@@ -281,14 +149,6 @@ class MainWindow(QMainWindow):
         self.create_shortcut("Ctrl+Q", self.close, "Exit Application")
         self.create_shortcut("F11", self.toggle_fullscreen, "Toggle Fullscreen")
 
-        # Add shortcut for Voice Recording tab
-        self.create_shortcut("Ctrl+R", self.show_voice_recording, "Show Voice Recording")
-
-        # Add shortcut for Telegram tab
-        self.create_shortcut("Ctrl+T", self.show_telegram, "Show Telegram")
-
-        # Add shortcut for GitHub tab
-        self.create_shortcut("Ctrl+G", self.show_github, "Show GitHub")
 
     def create_shortcut(self, key, callback, description):
         shortcut = QShortcut(QKeySequence(key), self)
@@ -298,25 +158,11 @@ class MainWindow(QMainWindow):
     def show_excel_viewer(self):
         self.content_stack.setCurrentIndex(0)
 
-    def show_functions(self):
-        self.content_stack.setCurrentIndex(1)
-
+    
     def show_config(self):
         self.content_stack.setCurrentIndex(2)
 
-    def show_voice_recording(self):
-        self.content_stack.setCurrentIndex(3)
-
-    def show_telegram(self):
-        telegram_tab = self.content_stack.findChild(TelegramTab)
-        if telegram_tab:
-            self.content_stack.setCurrentWidget(telegram_tab)
-
-    def show_github(self):
-        github_tab = self.content_stack.findChild(GitHubTab)
-        if github_tab:
-            self.content_stack.setCurrentWidget(github_tab)
-
+   
     def set_excel_tab(self, index):
         self.excel_tab_selector.setCurrentIndex(index)
 
