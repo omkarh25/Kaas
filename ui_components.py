@@ -133,7 +133,7 @@ class ExcelViewerTab(QWidget):
         layout.setContentsMargins(20, 20, 20, 20)
 
         # Load configuration from config.json
-        with open('KaasQt/config.json', 'r') as config_file:
+        with open('D:\Projects\QT\Kaas\config.json', 'r') as config_file:
             config = json.load(config_file)
 
         if self.sheet_name is None:
