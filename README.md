@@ -16,3 +16,6 @@ Alt+6: Switch to Index tab
 Additional Controls:
 Ctrl+Q: Exit the application
 F11: Toggle fullscreen mode
+
+
+open /Applications/Cursor.app/contents/MacOS/Cursor
