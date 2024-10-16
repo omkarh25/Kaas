@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ProgrammingGuidelines>
+    <CoreProgrammingLevel>
+        <Documentation>
+            <Rule>
+                <Description>Ensure to add documentation to every function and class while generating in the Google Docstring format for Python files.</Description>
+                <Example>
+                    <Code>
+                        <![CDATA[
+                        def function_name(param1: type, param2: type) -> return_type:
+                            """Short description of the function.
+                            
+                            Longer description if necessary.
+                            
+                            Args:
+                                param1 (type): Description of param1.
+                                param2 (type): Description of param2.
+                            
+                            Returns:
+                                return_type: Description of the return value.
+                            
+                            Raises:
+                                ExceptionType: Description of when this exception is raised.
+                            """
+                            pass
+                        ]]>
+                    </Code>
+                </Example>
+            </Rule>
+        </Documentation>
+        <LineLength>
+            <Code>79</Code>
+            <DocstringComment>72</DocstringComment>
+        </LineLength>
+        <Imports>
+            <Rule>
+                <Description>One import per line, grouped in order: standard library, third-party, local application.</Description>
+                <Example>
+                    <Code>
+                        <![CDATA[
+                        import os
+                        import sys
+                        
+                        import numpy as np
+                        
+                        from mypackage import mymodule
+                        ]]>
+                    </Code>
+                </Example>
+            </Rule>
+        </Imports>
+        <Whitespace>
+            <Rule>
+                <Description>Two blank lines between top-level functions and classes, one blank line between methods in a class, one blank line at the end of the file.</Description>
+                <Example>
+                    <Code>
+                        <![CDATA[
+                        def func1():
+                            pass
+                        
+                        
+                        def func2():
+                            pass
+                        
+                        
+                        class MyClass:
+                            def method1(self):
+                                pass
+                        
+                            def method2(self):
+                                pass
+                        
+                        # One blank line at the end of the file
+                        ]]>
+                    </Code>
+                </Example>
+            </Rule>
+        </Whitespace>
+    </CoreProgrammingLevel>
+    <LanguageLevel>
+        <Python>
+            <NamingConventions>
+                <Functions>snake_case, verbs (e.g., calculate_area)</Functions>
+                <Variables>snake_case, nouns (e.g., width, height)</Variables>
+                <Attributes>snake_case, nouns (e.g., area, width)</Attributes>
+                <GlobalVariables>Leading underscore (e.g., _variable_name)</GlobalVariables>
+                <Constants>UPPERCASE (e.g., PI, E)</Constants>
+                <Classes>PascalCase (e.g., Rectangle)</Classes>
+                <ClassVariables>Leading underscore (e.g., _width)</ClassVariables>
+                <PrivateVariables>Leading underscore (e.g., _variable_name)</PrivateVariables>
+                <DunderMethods>Leading underscores (e.g., __method_name__)</DunderMethods>
+                <Enums>
+                    <Classes>PascalCase (e.g., Color)</Classes>
+                    <Members>UPPERCASE (e.g., RED, GREEN)</Members>
+                </Enums>
+            </NamingConventions>
+            <Imports>
+                <Rule>Always use relative imports for modules and imports within the project.</Rule>
+            </Imports>
+            <Comments>
+                <Rule>Use inline comments sparingly, and only for complex code.</Rule>
+                <Example>
+                    <Code>
+                        <![CDATA[
+                        x = x + 1  # Compensate for border
+                        ]]>
+                    </Code>
+                </Example>
+            </Comments>
+            <Operators>
+                <Rule>Use spaces around operators and after commas.</Rule>
+                <Example>
+                    <Code>
+                        <![CDATA[
+                        x = 1 + 2 * 3
+                        def func(x, y, z):
+                            pass
+                        ]]>
+                    </Code>
+                </Example>
+            </Operators>
+            <CompoundStatements>
+                <Rule>Avoid putting multiple statements on one line.</Rule>
+                <Example>
+                    <Code>
+                        <![CDATA[
+                        # Good
+                        if x:
+                            do_something()
+                        
+                        # Bad
+                        if x: do_something()
+                        ]]>
+                    </Code>
+                </Example>
+            </CompoundStatements>
+            <ErrorHandling>
+                <Rule>Use specific exception handling.</Rule>
+                <Example>
+                    <Code>
+                        <![CDATA[
+                        try:
+                            do_something()
+                        except ValueError as e:
+                            handle_value_error(e)
+                        except TypeError as e:
+                            handle_type_error(e)
+                        ]]>
+                    </Code>
+                </Example>
+            </ErrorHandling>
+            <TypeHints>
+                <Rule>Use type hints for function arguments and return values.</Rule>
+                <Example>
+                    <Code>
+                        <![CDATA[
+                        def greet(name: str) -> str:
+                            return f"Hello, {name}!"
+                        ]]>
+                    </Code>
+                </Example>
+            </TypeHints>
+            <StringFormatting>
+                <Rule>Prefer f-strings for string formatting.</Rule>
+                <Example>
+                    <Code>
+                        <![CDATA[
+                        name = "Alice"
+                        age = 30
+                        print(f"{name} is {age} years old")
+                        ]]>
+                    </Code>
+                </Example>
+            </StringFormatting>
+            <ConditionalLogic>
+                <Rule>Never use if-elif-else blocks; instead use dictionaries.</Rule>
+                <Example>
+                    <Code>
+                        <![CDATA[
+                        class Calculator:
+                            """A minimal calculator using function mapping."""
+                        
+                            def __init__(self):
+                                self.operations = {
+                                    'add': lambda a, b: a + b,
+                                    'subtract': lambda a, b: a - b,
+                                    'multiply': lambda a, b: a * b,
+                                    'divide': lambda a, b: a / b if b != 0 else None,
+                                }
+                        
+                            def calculate(self, operation: str, a: float, b: float) -> float:
+                                return self.operations[operation](a, b)
+                        ]]>
+                    </Code>
+                </Example>
+            </ConditionalLogic>
+        </Python>
+    </LanguageLevel>
+    <ProjectSpecificGuidelines>
+        <MVCArchitecture>
+            <Framework>FastAPI</Framework>
+            <Structure>
+                <Description>Use the Model-View-Controller (MVC) architecture to organize the project using FastAPI.</Description>
+                <DirectoryStructure>
+                    <Code>
+                        <![CDATA[
+                        src/
+                        ├── models/
+                        │   ├── __init__.py
+                        │   ├── user_model.py
+                        │   ├── product_model.py
+                        │   └── order_model.py
+                        ├── views/
+                        │   ├── __init__.py
+                        │   ├── user_view.py
+                        │   ├── product_view.py
+                        │   └── order_view.py
+                        ├── controllers/
+                        │   ├── __init__.py
+                        │   ├── user_controller.py
+                        │   ├── product_controller.py
+                        │   └── order_controller.py
+                        ├── main.py
+                        ├── utils/
+                        │   ├── __init__.py
+                        │   └── helper_functions.py
+                        └── tests/
+                            ├── __init__.py
+                            ├── test_user.py
+                            ├── test_product.py
+                            └── test_order.py
+                        ]]>
+                    </Code>
+                </DirectoryStructure>
+                <Components>
+                    <Models>
+                        <Description>Define the data structure and database schema using Pydantic and SQLAlchemy.</Description>
+                    </Models>
+                    <Views>
+                        <Description>Handle the API routes and responses using FastAPI's APIRouter.</Description>
+                    </Views>
+                    <Controllers>
+                        <Description>Contain the business logic, interact with models, and return the necessary data to views.</Description>
+                    </Controllers>
+                </Components>
+            </Structure>
+        </MVCArchitecture>
+    </ProjectSpecificGuidelines>
+</ProgrammingGuidelines>
