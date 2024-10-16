@@ -1,5 +1,5 @@
-site_name: My Docs
-docs_dir: Docs
+site_name: Kaas
+docs_dir: 'Kaas/Docs'
 theme:
   name: material
   features:
