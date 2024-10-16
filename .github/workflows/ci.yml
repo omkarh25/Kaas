@@ -4,6 +4,7 @@ on:
     branches:
       - master 
       - main
+      - NikhilBase
 permissions:
   contents: write
 jobs:
