@@ -1,4 +1,5 @@
 site_name: My Docs
+docs_dir: Docs
 theme:
   name: material
   features:
