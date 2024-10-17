@@ -20,6 +20,7 @@ def scrape_website(url):
         url,
         params={'formats': ['markdown']}
     )
+    print('scrape_status:', scrape_status)
     return scrape_status
 
 def generate_completion(role, task, content):
@@ -40,6 +41,7 @@ def analyze_website_content(content):
         "Analyze the following website content and provide key insights for marketing strategy.",
         content
     )
+    print('analysis:', analysis)
     return {"analysis": analysis}
 
 def generate_copy(brief):
@@ -49,6 +51,7 @@ def generate_copy(brief):
         "Create compelling marketing copy based on the following brief.",
         brief
     )
+    print('copy:', copy)
     return {"copy": copy}
 
 def create_campaign_idea(target_audience, goals):
@@ -58,6 +61,7 @@ def create_campaign_idea(target_audience, goals):
         "Create an innovative campaign idea based on the target audience and goals provided.",
         f"Target Audience: {target_audience}\nGoals: {goals}"
     )
+    print('campaign_idea:', campaign_idea)
     return {"campaign_idea": campaign_idea}
 
 def handoff_to_copywriter():
