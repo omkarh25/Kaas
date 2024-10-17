@@ -171,6 +171,8 @@ Review:
 10. Need to give time hints in the script
 
 Best things implemented:
-1. 3 examples to convey the concept
+1. 3 examples to convey the concept. THe story of bull elephant from buddha's story.
 2. Language level is good.
 3. Overall amazing work!
+4. Resonates with the simplicity of the debt investment.
+5. 
