@@ -5,7 +5,11 @@ For full documentation visit [mkdocs.org](https://www.youtube.com/watch?v=NY7DHv
 <iframe width="560" height="315" src="https://www.youtube.com/watch?v=NY7DHvo1XVM&ab_channel=KenHarris" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 
-## Commands
+## MKDocs Material Links:
+
+https://squidfunk.github.io/mkdocs-material/reference/
+https://timvink.github.io/mkdocs-table-reader-plugin/
+https://facelessuser.github.io/pymdown-extensions/extensions/keys/#extendingmodifying-key-map-index
 
 * `mkdocs new [dir-name]` - Create a new project.
 * `mkdocs serve` - Start the live-reloading docs server.
