@@ -157,7 +157,9 @@ class CopywriterAgent(Agent):
 
 class UserInterfaceAgent(Agent):
     async def run(self):
-        url = input("Please enter a URL to analyze: ")
+        
+        # Human input1: Give the documentation URL
+        url = input("Please enter documentation URL to analyze: ")
         
         scraper_agent = WebScraperAgent()
         scraped_content, structured_content = await scraper_agent.run(url)
