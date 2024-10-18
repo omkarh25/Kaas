@@ -3,6 +3,7 @@ Serendipity Assistants:
 A. ReconciliationNValidation Assistant:
 B. Script Writing Assistant: mkdocs writer
 C. Code Generation Assistant: aider assistant with terminal access feature.
+4. Testing for gptme
 
 1. Good Morning Assistant (Task Provider): Breaks down the task based on the phase document. Provides relevant resources and examples. Provides step by step instructions to achieve the task. Provides a clear goal to help evaluate the task at the end of the day.
    1.1: Self
