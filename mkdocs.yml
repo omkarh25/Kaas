@@ -1,5 +1,4 @@
-site_name: 'Kaas'
-docs_dir: 'docs'
+site_name: "Kaas"
 theme:
   name: material
   language: en
