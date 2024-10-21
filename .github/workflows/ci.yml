@@ -1,12 +1,20 @@
-name: ci 
+name: CI
+
 on:
   push:
     branches:
-      - master 
+      - master
       - main
       - NikhilBase
+  pull_request:
+    branches:
+      - master
+      - main
+      - NikhilBase
+
 permissions:
   contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -21,4 +29,15 @@ jobs:
           path: .cache
       - run: pip install mkdocs-material
       - run: pip install pillow cairosvg
-      - run: mkdocs gh-deploy --force
+      - name: Debug - List directory contents
+        run: |
+          pwd
+          ls -R
+      - name: Deploy MkDocs
+        run: |
+          if [ -f "mkdocs.yml" ]; then
+            mkdocs gh-deploy --force
+          else
+            echo "mkdocs.yml not found. Please ensure it exists in the root of your repository."
+            exit 1
+          fi
