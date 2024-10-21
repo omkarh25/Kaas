@@ -1,4 +1,6 @@
 site_name: "Kaas"
+docs_dir: 'docs'
+site_dir: '../site'
 theme:
   name: material
   language: en
@@ -20,3 +22,5 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.superfences
   - attr_list
+
+

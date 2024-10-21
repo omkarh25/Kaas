@@ -1,12 +1,20 @@
-name: ci 
+name: CI
+
 on:
   push:
     branches:
-      - master 
+      - master
       - main
       - NikhilBase
+  pull_request:
+    branches:
+      - master
+      - main
+      - NikhilBase
+
 permissions:
   contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -21,4 +29,14 @@ jobs:
           path: .cache
       - run: pip install mkdocs-material
       - run: pip install pillow cairosvg
-      - run: mkdocs gh-deploy --force
+      - name: Prepare docs directory
+        run: |
+          mkdir -p docs
+          find . -maxdepth 1 -type f \( -name "*.md" -o -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.gif" \) -exec mv {} docs/ \;
+      - name: Debug - List directory contents
+        run: |
+          pwd
+          ls -R
+      - name: Deploy MkDocs
+        run: |
+          mkdocs gh-deploy --force --config-file ./mkdocs.yml
