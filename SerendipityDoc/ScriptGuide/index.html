@@ -1,0 +1,1110 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../Kaas_Sheets_Summary/">
+      
+      
+        <link rel="next" href="../prompt_collections/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
+    
+    
+      
+        <title>ScriptGuide - Kaas</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.0253249f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#video-structure" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Kaas" class="md-header__button md-logo" aria-label="Kaas" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kaas
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ScriptGuide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Welcome to MkDocs
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../DhoomStudiosDoc/Debt_Reference/" class="md-tabs__link">
+          
+  
+  DhoomStudiosDoc
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../AccQTPrd/" class="md-tabs__link">
+          
+  
+  SerendipityDoc
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../TradeMan/Begin_Phase1/" class="md-tabs__link">
+          
+  
+  TradeMan
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Kaas" class="md-nav__button md-logo" aria-label="Kaas" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kaas
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Welcome to MkDocs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    DhoomStudiosDoc
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            DhoomStudiosDoc
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DhoomStudiosDoc/Debt_Reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Debt Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DhoomStudiosDoc/Debt_Reviewed/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Debt Reviewed
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DhoomStudiosDoc/JioRouterConfig/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    JioRouterConfig
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DhoomStudiosDoc/OldMansTale/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OldMansTale
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    SerendipityDoc
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            SerendipityDoc
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../AccQTPrd/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Product Requirements Document (PRD): AccQT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../AccountDailyReport/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Daily Report - Serendipity Accounting Department
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../AudioMeetingGuidelines/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AudioMeetingGuidelines
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../FileNamingGuidelines/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FileNamingGuidelines
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../KaasMainSheetSummary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    KaasMainSheetSummary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Kaas_Sheets_Summary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Kaas Sheets Summary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    ScriptGuide
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    ScriptGuide
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#video-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Video Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#content-breakdown-for-each-video" class="md-nav__link">
+    <span class="md-ellipsis">
+      Content Breakdown for Each Video
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#outro-3-seconds" class="md-nav__link">
+    <span class="md-ellipsis">
+      Outro (3 seconds)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#general-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      General Guidelines
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#designer-instructions-for-adobe-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Designer Instructions for Adobe Tools
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips-for-effective-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tips for Effective Execution
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompt_collections/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Prompt collections
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    TradeMan
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            TradeMan
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TradeMan/Begin_Phase1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Begin Phase1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TradeMan/FabricKaas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FabricKaas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TradeMan/HakunaMatataDevGuide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Coderunner Agent System - Step-by-Step Implementation Guide
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TradeMan/KaasAppPrompt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    KaasAppPrompt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TradeMan/Serendipity_Commit_Convention_Guideline/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Serendipity Tech Department Commit Convention Guideline
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TradeMan/TechDailyReport/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TechDailyReport
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TradeMan/coolifyIns/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    coolifyIns
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  <h1>ScriptGuide</h1>
+
+<p><strong>Dhoom Studios' 'History of Markets' Series Script Guidelines</strong></p>
+<p><strong>Objective</strong>: To create an engaging, educational series about the history of stock markets that resonates with modern-day social media consumers. Each 75-second video aims to blend historical storytelling, market concepts, and current financial context in an innovative way, focusing on concepts such as "The Beginning of the Share Market" using historical events like the Dutch VOC as a narrative anchor.</p>
+<h3 id="video-structure"><strong>Video Structure</strong></h3>
+<ul>
+<li><strong>Total Duration</strong>: 75 seconds + 3 seconds for outro (total 78 seconds)</li>
+<li><strong>Division</strong>: 75-second clip is divided into 5 segments, each 15 seconds long, with distinct motion posters</li>
+<li><strong>Outro</strong>: 1 fixed 3-second clip for consistent branding</li>
+</ul>
+<h3 id="content-breakdown-for-each-video"><strong>Content Breakdown for Each Video</strong></h3>
+<ol>
+<li><strong>Introduction of the Concept (15 seconds)</strong></li>
+<li><strong>Objective</strong>: Grab attention by framing the concept with a powerful story hook.</li>
+<li><strong>Example</strong>: Introduce "The Beginning of the Share Market" by explaining how Dutch traders, striving for global exploration, found a way to "share" the risks and rewards, leading to the creation of the Dutch VOC.</li>
+<li><strong>Perspective</strong>: First-person narration, e.g., "Imagine yourself standing on the docks of Amsterdam in the 1600s, about to make history."</li>
+<li><strong>Design Instructions</strong>: Use Adobe After Effects for a dynamic introduction scene, utilizing motion graphics to depict old-time ships leaving harbor and traders huddling to share profits. <strong>Color Palette</strong>: Sepia tones for a historical feel.</li>
+<li>
+<p><strong>Prompts</strong>:</p>
+<ul>
+<li><strong>Image Assets</strong>: Generate images of old Amsterdam harbor, Dutch VOC ships, early traders.</li>
+<li><strong>Background Score</strong>: Start with ambient harbor sounds and a rising orchestral tone for intrigue.</li>
+</ul>
+</li>
+<li>
+<p><strong>Historical Pivotal Moment (15 seconds)</strong></p>
+</li>
+<li><strong>Objective</strong>: Highlight a key person or event that led to the concept’s emergence.</li>
+<li><strong>Example</strong>: Tell the story of the founding of the Dutch East India Company (VOC) and its early shares.</li>
+<li><strong>Perspective</strong>: Third-person narration, e.g., "The Dutch VOC, founded in 1602, was the world’s first company to issue stock, pioneering what we call the share market today."</li>
+<li><strong>Design Instructions</strong>: Use Adobe Illustrator to create a simplified infographic showing the VOC issuing its first shares, transitioning into After Effects to animate the infographic.</li>
+<li>
+<p><strong>Prompts</strong>:</p>
+<ul>
+<li><strong>Image Assets</strong>: Illustrations of the Dutch VOC building and old paper stocks.</li>
+<li><strong>Background Score</strong>: Steady drumbeat to emphasize historical significance.</li>
+</ul>
+</li>
+<li>
+<p><strong>Purpose and Importance of Concept (15 seconds)</strong></p>
+</li>
+<li><strong>Objective</strong>: Explain why this concept was created and its significance.</li>
+<li><strong>Example</strong>: Explore how the concept of sharing risks made exploration possible and prosperous.</li>
+<li><strong>Perspective</strong>: Second-person narration, e.g., "Think about why they did it—to spread the risk, so no one person had to bear it alone. This spirit of shared success is still alive in today’s markets."</li>
+<li><strong>Design Instructions</strong>: Use Adobe Premiere Pro to show split-screen visuals of a ship at sea vs. an investor today, indicating shared risk.</li>
+<li>
+<p><strong>Prompts</strong>:</p>
+<ul>
+<li><strong>Image Assets</strong>: Modern stock market trading floors contrasted with historical docks.</li>
+<li><strong>Background Score</strong>: Light yet determined strings, portraying optimism.</li>
+</ul>
+</li>
+<li>
+<p><strong>Transition to Modern Day (15 seconds)</strong></p>
+</li>
+<li><strong>Objective</strong>: Link the historical concept to the modern world, showing its evolution.</li>
+<li><strong>Example</strong>: "From the VOC’s wooden ships to today’s digital trades, the concept of sharing value has grown into a multi-trillion dollar economy."</li>
+<li><strong>Perspective</strong>: Third-person narration.</li>
+<li><strong>Design Instructions</strong>: Use Adobe After Effects for a time-lapse animation showing the evolution of trading, from old paper stocks to a screen filled with digital trading charts.</li>
+<li>
+<p><strong>Prompts</strong>:</p>
+<ul>
+<li><strong>Image Assets</strong>: Modern-day trading apps, skyscrapers, world map with stock exchanges highlighted.</li>
+<li><strong>Background Score</strong>: Transition to upbeat electronic music, representing growth.</li>
+</ul>
+</li>
+<li>
+<p><strong>Current State Overview (15 seconds)</strong></p>
+</li>
+<li><strong>Objective</strong>: Present an overview of the current state of this concept in today's markets.</li>
+<li><strong>Example</strong>: Share modern facts, such as the market cap of a leading stock index like Nifty.</li>
+<li><strong>Perspective</strong>: Third-person narration, e.g., "Today, the Nifty 50 has a market cap of over $2.5 trillion, a testament to how far the idea of shared ownership has come."</li>
+<li><strong>Design Instructions</strong>: Use Adobe Premiere Pro to feature statistics with dynamic typography overlaying visuals of bustling financial districts.</li>
+<li><strong>Prompts</strong>:<ul>
+<li><strong>Image Assets</strong>: Stock market tickers, trading floor shots.</li>
+<li><strong>Background Score</strong>: Confident and steady electronic beat, indicating stability and maturity.</li>
+</ul>
+</li>
+</ol>
+<h3 id="outro-3-seconds"><strong>Outro (3 seconds)</strong></h3>
+<ul>
+<li><strong>Objective</strong>: Consistent brand reinforcement and call-to-action.</li>
+<li><strong>Content</strong>: "Dhoom Studios - Bringing History to Life. Follow us for more insights!"</li>
+<li><strong>Design Instructions</strong>: Use Adobe After Effects to create a simple yet impactful motion graphic with Dhoom Studios' logo animation.</li>
+<li><strong>Background Score</strong>: Signature sound that matches Dhoom Studios' brand.</li>
+</ul>
+<h3 id="general-guidelines"><strong>General Guidelines</strong></h3>
+<ol>
+<li><strong>Storytelling Tone</strong>: Should be engaging, accessible, and educational. We want viewers to feel as though they are learning while being entertained.</li>
+<li><strong>Design Synergy</strong>: All 5 segments need cohesive design elements so that the video transitions smoothly from one part to the next.</li>
+<li><strong>Perspective Variation</strong>: Utilize first-person, second-person, and third-person perspectives to create a dynamic narration that keeps viewers interested.</li>
+<li><strong>Visual Consistency</strong>: Stick to a recognizable visual theme that represents both history and modernity. Ensure smooth transitions between old-world visuals and modern imagery.</li>
+<li><strong>Call to Action</strong>: Always include a subtle call to action at the end—encouraging the viewer to follow for more content, comment, or share.</li>
+</ol>
+<h3 id="designer-instructions-for-adobe-tools"><strong>Designer Instructions for Adobe Tools</strong></h3>
+<ul>
+<li><strong>After Effects</strong>: Use for all major animations and transitions, especially historical recreations and movement-heavy visuals.</li>
+<li><strong>Illustrator</strong>: For creating static historical assets or infographic elements.</li>
+<li><strong>Premiere Pro</strong>: To stitch all elements together with seamless transitions and add narration audio.</li>
+</ul>
+<h3 id="tips-for-effective-execution"><strong>Tips for Effective Execution</strong></h3>
+<ol>
+<li><strong>Engaging Narration</strong>: The script needs to feel conversational, making the complex topic of market history relatable to even a non-financial audience.</li>
+<li><strong>Balanced Imagery</strong>: Mix between historical and modern images, illustrating the evolution of each concept effectively.</li>
+<li><strong>Music and Sound Design</strong>: Background scores should guide the emotional tone of each segment—nostalgia for history, excitement for breakthroughs, stability for current overviews.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
+      
+    
+  </body>
+</html>
