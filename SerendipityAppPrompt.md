@@ -95,3 +95,12 @@ F11: Toggle fullscreen mode
 pyinstaller --name=Kaas --windowed --onefile --add-data "KaasQt/config.json;." --icon="KaasQt/kaas.ico" Kaas.py
 
    pyinstaller --name=Kaas --windowed --onefile --add-data="KaasQt\config.json;." --icon="KaasQt\kaas.ico" KaasQt\Kaas.py
+
+User has software start up following infra and software choices.
+1. coolify via windows ssh via docker
+2. windows nvidia 4070x with cuda (prod)
+3. mac m2 mini, macbook m2 pro (dev)
+4. traefik
+5. Internet: jio business isp with static ip
+6. Host all apps internally.
+Need technical assistance

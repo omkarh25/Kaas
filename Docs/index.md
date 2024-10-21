@@ -4,6 +4,8 @@ For full documentation visit [mkdocs.org](https://www.youtube.com/watch?v=NY7DHv
 
 <iframe width="560" height="315" src="https://www.youtube.com/watch?v=NY7DHvo1XVM&ab_channel=KenHarris" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
+[AudioMeeting](SerendipityDoc/AudioMeetingGuidelines.md)
+
 
 ## MKDocs Material Links:
 
