@@ -29,15 +29,13 @@ jobs:
           path: .cache
       - run: pip install mkdocs-material
       - run: pip install pillow cairosvg
+      - name: Prepare docs directory
+        run: |
+          mkdir -p docs
+          find . -maxdepth 1 -type f \( -name "*.md" -o -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.gif" \) -exec mv {} docs/ \;
       - name: Debug - List directory contents
         run: |
           pwd
           ls -R
       - name: Deploy MkDocs
-        run: |
-          if [ -f "mkdocs.yml" ]; then
-            mkdocs gh-deploy --force
-          else
-            echo "mkdocs.yml not found. Please ensure it exists in the root of your repository."
-            exit 1
-          fi
+        run: mkdocs gh-deploy --force

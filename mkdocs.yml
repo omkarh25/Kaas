@@ -1,5 +1,5 @@
 site_name: "Kaas"
-docs_dir: 'docs'
+docs_dir: '.'
 site_dir: 'site'
 theme:
   name: material
